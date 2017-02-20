@@ -19,25 +19,25 @@ type Cursor = (Maybe Int, Sentence)
 
 type Sentence = (Word, (Word, Word))
 
+type Index = V.Vector Sentence
+
 data Machine = Machine
     { topCursor :: Cursor
     , midCursor :: Cursor
     , botCursor :: Cursor
     , value :: Maybe Word
-    , program :: Program
+    , index :: Index
     }
     deriving (Show)
 
-type Program = V.Vector Sentence
-
-initialize :: Program -> Machine
-initialize program = Machine
-    -- By convention, the first sentence in the program is the starting point.
-    { topCursor = (Just 0, V.head program)
+initialize :: Index -> Machine
+initialize index = Machine
+    -- By convention, the first sentence in the index is the starting point.
+    { topCursor = (Just 0, V.head index)
     , midCursor = emptyCursor
     , botCursor = emptyCursor
     , value = Nothing
-    , program = program
+    , index = index
     }
 
 emptyCursor = (Nothing, emptySentence)
@@ -52,7 +52,7 @@ prettyPrint machine = do
     putStrLn $ "- mid: " ++ show (midCursor machine)
     putStrLn $ "- bot: " ++ show (botCursor machine)
     putStrLn $ "Value: " ++ show (value machine)
-    putStrLn $ "Program: " ++ show (program machine)
+    putStrLn $ "Index: " ++ show (index machine)
 
 nullWord = Word NullWord Nothing
 b = Word B Nothing
@@ -108,24 +108,24 @@ toWriteBack (p, s) = (getMaybe "No address in cursor" p, s)
 rotateCursorsUp :: Machine -> Machine
 rotateCursorsUp machine = machine'
     where
-        machine' = machine { topCursor = (midCursor machine), midCursor = (botCursor machine), botCursor = botCursor', program = program' }
+        machine' = machine { topCursor = (midCursor machine), midCursor = (botCursor machine), botCursor = botCursor', index = index' }
         botCursor' = case pointer of
             (Just x) -> if t == M then (Just x, nestedSentence) else emptyCursor
             _ -> emptyCursor
-        nestedSentence = (program machine) V.! (getMaybe "No pointer in M word" $ pointer)
+        nestedSentence = (index machine) V.! (getMaybe "No pointer in M word" $ pointer)
         (Word t pointer) = fst . snd . botCursor $ machine
-        program' = (program machine) V.// [toWriteBack . topCursor $ machine]
+        index' = (index machine) V.// [toWriteBack . topCursor $ machine]
 
 rotateCursorsDown :: Machine -> Machine
 rotateCursorsDown machine = machine'
     where
-        machine' = machine { topCursor = topCursor', midCursor = (topCursor machine), botCursor = (midCursor machine), program = program' }
-        nestedSentence = (program machine) V.! pointer
+        machine' = machine { topCursor = topCursor', midCursor = (topCursor machine), botCursor = (midCursor machine), index = index' }
+        nestedSentence = (index machine) V.! pointer
         pointer = getMaybe "No pointer in N word" . wordAddress . getCurrentWord $ machine
         topCursor' = (Just pointer, nestedSentence)
-        program' = case (fst . botCursor $ machine) of
-            (Just _) -> (program machine) V.// [toWriteBack . botCursor $ machine]
-            _ -> program machine
+        index' = case (fst . botCursor $ machine) of
+            (Just _) -> (index machine) V.// [toWriteBack . botCursor $ machine]
+            _ -> index machine
 
 nest :: Machine -> Machine
 nest machine = machine''
@@ -156,40 +156,40 @@ doB machine
 doB1 :: Machine -> Machine
 doB1 machine = rotateCursorsUp machine'
     where
-        machine' = machine { midCursor = midCursor', program = program' }
+        machine' = machine { midCursor = midCursor', index = index' }
         arg1 = fst . snd . snd . topCursor $ machine
         arg2 = fst . snd . snd . midCursor $ machine
         arg3 = snd . snd . snd . midCursor $ machine
         (midPointer, _) = midCursor $ machine
         midCursor' = (midPointer, (arg1, (nested, nullWord)))
-        nested = n . V.length . program $ machine
-        program' = V.snoc (program machine) (arg2, (arg3, nullWord))
+        nested = n . V.length . index $ machine
+        index' = V.snoc (index machine) (arg2, (arg3, nullWord))
 
 doB2 :: Machine -> Machine
 doB2 machine = rotateCursorsUp machine'
     where
-        machine' = machine { midCursor = midCursor', program = program' }
+        machine' = machine { midCursor = midCursor', index = index' }
         arg1 = fst . snd . snd . topCursor $ machine
         arg2 = snd . snd . snd . topCursor $ machine
         arg3 = fst . snd . snd . midCursor $ machine
         extra = snd . snd . snd . midCursor $ machine
         (midPointer, _) = midCursor $ machine
         midCursor' = (midPointer, (arg1, (nested, extra)))
-        nested = n . V.length . program $ machine
-        program' = V.snoc (program machine) (arg2, (arg3, nullWord))
+        nested = n . V.length . index $ machine
+        index' = V.snoc (index machine) (arg2, (arg3, nullWord))
 
 doB3 :: Machine -> Machine
 doB3 machine = rotateCursorsUp $ rotateCursorsUp machine'
     where
-        machine' = machine { botCursor = botCursor', program = program' }
+        machine' = machine { botCursor = botCursor', index = index' }
         arg1 = fst . snd . snd . topCursor $ machine
         arg2 = fst . snd . snd . midCursor $ machine
         arg3 = fst . snd . snd . botCursor $ machine
         extra = snd . snd . snd . midCursor $ machine
         (botPointer, _) = botCursor $ machine
         botCursor' = (botPointer, (arg1, (nested, extra)))
-        nested = n . V.length . program $ machine
-        program' = V.snoc (program machine) (arg2, (arg3, nullWord))
+        nested = n . V.length . index $ machine
+        index' = V.snoc (index machine) (arg2, (arg3, nullWord))
 
 doC :: Machine -> Machine
 doC machine
@@ -214,28 +214,28 @@ doC1 machine = rotateCursorsUp machine'
 doC2 :: Machine -> Machine
 doC2 machine = rotateCursorsUp machine'
     where
-        machine' = machine { midCursor = midCursor', program = program' }
+        machine' = machine { midCursor = midCursor', index = index' }
         arg1 = fst . snd . snd . topCursor $ machine
         arg2 = snd . snd . snd . topCursor $ machine
         arg3 = fst . snd . snd . midCursor $ machine
         extra = snd . snd . snd . midCursor $ machine
         (midPointer, _) = midCursor $ machine
         midCursor' = (midPointer, (nested, (arg2, extra)))
-        nested = n . V.length . program $ machine
-        program' = V.snoc (program machine) (arg1, (arg3, nullWord))
+        nested = n . V.length . index $ machine
+        index' = V.snoc (index machine) (arg1, (arg3, nullWord))
 
 doC3 :: Machine -> Machine
 doC3 machine = rotateCursorsUp $ rotateCursorsUp machine'
     where
-        machine' = machine { botCursor = botCursor', program = program' }
+        machine' = machine { botCursor = botCursor', index = index' }
         arg1 = fst . snd . snd . topCursor $ machine
         arg2 = fst . snd . snd . midCursor $ machine
         arg3 = fst . snd . snd . botCursor $ machine
         extra = snd . snd . snd . midCursor $ machine
         (botPointer, _) = botCursor $ machine
         botCursor' = (botPointer, (nested, (arg2, extra)))
-        nested = n . V.length . program $ machine
-        program' = V.snoc (program machine) (arg1, (arg3, nullWord))
+        nested = n . V.length . index $ machine
+        index' = V.snoc (index machine) (arg1, (arg3, nullWord))
 
 doK :: Machine -> Machine
 doK machine = rotateCursorsUp machine'
@@ -250,14 +250,14 @@ doK machine = rotateCursorsUp machine'
 doW :: Machine -> Machine
 doW machine = rotateCursorsUp machine'
     where
-        machine' = machine { midCursor = midCursor', program = program' }
+        machine' = machine { midCursor = midCursor', index = index' }
         arg1 = fst . snd . snd . topCursor $ machine
         arg2 = fst . snd . snd . midCursor $ machine
         extra = snd . snd . snd . midCursor $ machine
         (midPointer, _) = midCursor $ machine
         midCursor' = (midPointer, (nested, (arg2, extra)))
-        nested = n . V.length . program $ machine
-        program' = V.snoc (program machine) (arg1, (arg2, nullWord))
+        nested = n . V.length . index $ machine
+        index' = V.snoc (index machine) (arg1, (arg2, nullWord))
 
 -- Test programs
 -- ((K K) K)
