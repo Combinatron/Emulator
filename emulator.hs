@@ -6,7 +6,7 @@ import Data.Monoid
 import Data.List (nub)
 import Data.Maybe (fromJust)
 
-data WordType = B | C | K | W | G | P | N | M | NullWord
+data WordType = B | C | K | W | N | M | NullWord
     deriving (Show, Eq)
 
 data Word = Word
