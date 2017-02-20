@@ -1,4 +1,5 @@
--- See semantics3
+-- See https://github.com/Combinatron/Specification
+-- Some notable differences in this implementation are:
 
 import Prelude hiding (Word(..), return)
 import qualified Data.Vector as V
