@@ -8,7 +8,7 @@ enough to play around with though.
 ## Contributing
 
 You can use Nix and `nix-shell` to get a working environment that can be messed
-around in.
+around in. The project is also buildable with cabal.
 
 ## Todo
 
