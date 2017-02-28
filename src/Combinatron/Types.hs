@@ -1,7 +1,7 @@
 {-# LANGUAGE TypeSynonymInstances, FlexibleInstances, TemplateHaskell #-}
 module Combinatron.Types (
     Word(..),
-    Pointer(..), newPointer, usePointer,
+    Pointer(), newPointer, usePointer,
     Cursor(..),
     Sentence(..),
     SentenceIndex,
