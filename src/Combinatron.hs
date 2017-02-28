@@ -41,35 +41,47 @@ isNest = view (c0w0.to isN)
 isUnnest :: Machine -> Bool
 isUnnest m = all ($ m) [oneWord botCursor, oneWord' midCursor]
 
+oneCursor :: Word -> Machine -> Bool
+oneCursor w m = all ($ m) [primaryWord w, threeWord botCursor]
+
+twoCursorOneArg :: Word -> Machine -> Bool
+twoCursorOneArg w m = all ($ m) [primaryWord w, twoWord botCursor, twoWord' midCursor]
+
+twoCursorTwoArg :: Word -> Machine -> Bool
+twoCursorTwoArg w m = all ($ m) [primaryWord w, twoWord botCursor, threeWord midCursor]
+
+threeCursor :: Word -> Machine -> Bool
+threeCursor w m = all ($ m) [primaryWord w, twoWord botCursor, twoWord midCursor, twoWord' topCursor]
+
 isK1 :: Machine -> Bool
-isK1 m = all ($ m) [primaryWord K, threeWord botCursor]
+isK1 = oneCursor K
 
 isK2 :: Machine -> Bool
-isK2 m = all ($ m) [primaryWord K, twoWord botCursor, twoWord' midCursor]
+isK2 = twoCursorOneArg K
 
 isW1 :: Machine -> Bool
-isW1 m = all ($ m) [primaryWord W, threeWord botCursor]
+isW1 = oneCursor W
 
 isW2 :: Machine -> Bool
-isW2 m = all ($ m) [primaryWord W, twoWord botCursor, twoWord' midCursor]
+isW2 = twoCursorOneArg W
 
 isC1 :: Machine -> Bool
-isC1 m = all ($ m) [primaryWord C, threeWord botCursor, twoWord' midCursor]
+isC1 = twoCursorOneArg C
 
 isC2 :: Machine -> Bool
-isC2 m = all ($ m) [primaryWord C, twoWord botCursor, threeWord midCursor]
+isC2 = twoCursorTwoArg C
 
 isC3 :: Machine -> Bool
-isC3 m = all ($ m) [primaryWord C, twoWord botCursor, twoWord midCursor, twoWord' topCursor]
+isC3 = threeCursor C
 
 isB1 :: Machine -> Bool
-isB1 m = all ($ m) [primaryWord B, threeWord botCursor, twoWord' midCursor]
+isB1 = twoCursorOneArg B
 
 isB2 :: Machine -> Bool
-isB2 m = all ($ m) [primaryWord B, twoWord botCursor, threeWord midCursor]
+isB2 = twoCursorTwoArg B
 
 isB3 :: Machine -> Bool
-isB3 m = all ($ m) [primaryWord B, twoWord botCursor, twoWord midCursor, twoWord' topCursor]
+isB3 = threeCursor B
 
 primaryWord :: Word -> Machine -> Bool
 primaryWord w m = view c0w0 m == w
