@@ -16,10 +16,9 @@ module Combinatron.Types (
     cursorPointer, cursorSentence
 ) where
 
-import Prelude hiding (Word(..))
+import Prelude hiding (Word)
 import qualified Data.Vector as V
 import Data.List (intersperse)
-import Control.Lens.TH (makeLenses)
 import Control.Lens
 import Data.Maybe (fromMaybe)
 

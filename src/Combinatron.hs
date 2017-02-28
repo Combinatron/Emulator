@@ -4,10 +4,10 @@ module Combinatron (
   runDebug
 ) where
 
-import Prelude hiding (Word(..))
+import Prelude hiding (Word)
 import Combinatron.Operations
 import Combinatron.Types
-import Control.Lens (Lens', view, to)
+import Control.Lens (view, to)
 import System.IO.Unsafe (unsafePerformIO)
 
 run m = case step m of
