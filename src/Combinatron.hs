@@ -1,7 +1,7 @@
 {-# LANGUAGE Rank2Types #-}
 module Combinatron (
-  loop,
-  loopDebug
+  run,
+  runDebug
 ) where
 
 import Prelude hiding (Word(..))
@@ -10,12 +10,12 @@ import Combinatron.Types
 import Control.Lens (Lens', view, to)
 import System.IO.Unsafe (unsafePerformIO)
 
-loop m = case step m of
-    (Right m) -> loop m
+run m = case step m of
+    (Right m) -> run m
     (Left m) -> m
 
-loopDebug m = case step (unsafePerformIO (printMachine m)) of
-    (Right m) -> loop m
+runDebug m = case step (unsafePerformIO (printMachine m)) of
+    (Right m) -> run m
     (Left m) -> m
 
 step :: Machine -> Either Machine Machine
