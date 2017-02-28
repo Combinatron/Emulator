@@ -23,14 +23,17 @@ import Control.Lens.TH (makeLenses)
 import Control.Lens
 import Data.Maybe (fromMaybe)
 
+-- | A Pointer is just a wrapper around an Int. It only exposes printing and equality functionality.
 newtype Pointer = Pointer { pointer :: Int }
     deriving (Show, Eq)
 
+-- | Pointers must be 0, so only this constructor is exported from the module.
 newPointer :: Int -> Pointer
 newPointer p
     | p > 0 = Pointer p
     | otherwise = error "Pointers must be greater than 0!"
 
+-- | Dereferencing a pointer can be a bit cumbersome, since 0 is a special value. This helper makes that process a bit easier.
 usePointer :: Pointer -> a -> (Int -> a) -> a
 usePointer (Pointer 0) x _ = x
 usePointer (Pointer x) _ f = f x
@@ -97,21 +100,27 @@ printMachine m = do
     putStrLn . prettyPrint $ m
     return m
 
+-- | This is a little helper for making it easier to construct N words.
 n :: Int -> Word
 n = N . newPointer
 
+-- | This is a little helper for making it easier to construct M words.
 m :: Int -> Word
 m = M . newPointer
 
+-- | This is a little helper for making it easier to construct sentences.
 s :: (Word, Word, Word) -> Sentence
 s (w, w', w'') = Sentence w w' w''
 
+-- | This is a little helper for making it easier to construct programs from lists of Word tuples.
 program :: [(Word, Word, Word)] -> V.Vector Sentence
 program = V.fromList . map (s $)
 
+-- | An empty cursor is one that has a pointer to 0 and all NullWords in its sentence.
 emptyCursor :: Cursor
 emptyCursor = Cursor (Pointer 0) (Sentence NullWord NullWord NullWord)
 
+-- | Some comparison helpers
 isN (N _) = True
 isN _ = False
 
@@ -125,9 +134,9 @@ isNull w = w == NullWord
 cursorAt :: Pointer -> SentenceIndex -> Cursor
 cursorAt p index = fromMaybe emptyCursor (Cursor p <$> index V.!? pred (pointer p))
 
+-- | Builds a machine from a given SentenceIndex. The SentenceIndex is essentially just a program. By convention, the first sentence in the index is the starting point.
 initialize :: SentenceIndex -> Machine
 initialize index = Machine
-    -- By convention, the first sentence in the index is the starting point.
     { _topCursor = emptyCursor
     , _midCursor = emptyCursor
     , _botCursor = cursorAt (newPointer 1) index

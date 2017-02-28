@@ -14,9 +14,7 @@ module Combinatron.Operations (
   noWord, oneWord, twoWord, threeWord, oneWord', twoWord',
   c0w0, c0w1, c0w2, c1w0, c1w1, c1w2, c2w0, c2w1, c2w2
 ) where
-{-
- - A library of primitive operations to modify Machine state.
- -}
+-- | A library of primitive operations to modify Machine state.
 
 import Prelude hiding (Word)
 import Combinatron.Types
@@ -93,26 +91,31 @@ rotateCursorsUp m =
             (N p) -> p
             _ -> error "Primary word in bottom cursor must be N to rotate up!"
 
--- Primitive Predicates
+-- | Has zero words
 noWord :: Lens' Machine Cursor -> Machine -> Bool
 noWord c m = all (flip view m) [c.word0.to isNull, c.word1.to isNull, c.word2.to isNull]
 
+-- | Has exactly one word
 oneWord :: Lens' Machine Cursor -> Machine -> Bool
 oneWord c m = all (flip view m) [c.word0.to isNotNull, c.word1.to isNull, c.word2.to isNull]
 
+-- | Has exactly two words
 twoWord :: Lens' Machine Cursor -> Machine -> Bool
 twoWord c m = all (flip view m) [c.word0.to isNotNull, c.word1.to isNotNull, c.word2.to isNull]
 
+-- | Has exactly three words
 threeWord :: Lens' Machine Cursor -> Machine -> Bool
 threeWord c m = all (flip view m) [c.word0.to isNotNull, c.word1.to isNotNull, c.word2.to isNotNull]
 
+-- | Has at least one word
 oneWord' :: Lens' Machine Cursor -> Machine -> Bool
 oneWord' c m = all (flip view m) [c.word0.to isNotNull]
 
+-- | Has at least two words
 twoWord' :: Lens' Machine Cursor -> Machine -> Bool
 twoWord' c m = all (flip view m) [c.word0.to isNotNull, c.word1.to isNotNull]
 
--- Cursor/Word Lens shorthands
+-- | Cursor/Word Lens shorthands
 word0 :: Lens' Cursor Word
 word0 = cursorSentence.priWord
 
@@ -142,4 +145,3 @@ c2w1 :: Lens' Machine Word
 c2w1 = topCursor.word1
 c2w2 :: Lens' Machine Word
 c2w2 = topCursor.word2
-
