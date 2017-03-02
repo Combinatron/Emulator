@@ -72,3 +72,9 @@ w2Prog = program
 w1Prog = program
     [ (W, C, B)
     ]
+
+sideEffectingProg = program
+    [ (g 2, p 3, K)
+    , (B, B, B)
+    , (C, C, C)
+    ]

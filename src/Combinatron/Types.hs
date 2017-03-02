@@ -8,10 +8,10 @@ module Combinatron.Types (
     Machine(..),
     prettyPrint,
     printMachine,
-    n, m, s, program, emptyCursor, isN, isM, isNotNull, isNull,
-    initialize, cursorAt,
+    n, m, g, p, s, program, emptyCursor, isN, isM, isP, isG, isNotNull, isNull,
+    initialize, cursorAt, sentenceAt,
     -- lenses
-    topCursor, midCursor, botCursor, sentenceIndex,
+    topCursor, midCursor, botCursor, sentenceIndex, value,
     priWord, secWord, triWord,
     cursorPointer, cursorSentence
 ) where
@@ -37,7 +37,7 @@ usePointer :: Pointer -> a -> (Int -> a) -> a
 usePointer (Pointer 0) x _ = x
 usePointer (Pointer x) _ f = f (pred x)
 
-data Word = B | C | K | W | N Pointer | M Pointer | NullWord
+data Word = B | C | K | W | N Pointer | M Pointer | G Pointer | P Pointer | NullWord
     deriving (Show, Eq)
 
 data Cursor = Cursor { _cursorPointer :: Pointer, _cursorSentence ::  Sentence }
@@ -57,6 +57,7 @@ data Machine = Machine
     , _midCursor :: Cursor
     , _botCursor :: Cursor
     , _sentenceIndex :: SentenceIndex
+    , _value :: Sentence
     }
     deriving (Show)
 
@@ -72,6 +73,8 @@ class PrettyPrinter a where
 instance PrettyPrinter Word where
     prettyPrint (N (Pointer p)) = "N" ++ show p
     prettyPrint (M (Pointer p)) = "M" ++ show p
+    prettyPrint (G (Pointer p)) = "G" ++ show p
+    prettyPrint (P (Pointer p)) = "P" ++ show p
     prettyPrint NullWord = "0"
     prettyPrint w = show w
 
@@ -92,6 +95,7 @@ instance PrettyPrinter Machine where
         , "- mid: " ++ prettyPrint (machine^.midCursor)
         , "- bot: " ++ prettyPrint (machine^.botCursor)
         , "Index: " ++ prettyPrint (machine^.sentenceIndex)
+        , "Value: " ++ prettyPrint (machine^.value)
         ]
 
 printMachine :: Machine -> IO Machine
@@ -106,6 +110,14 @@ n = N . newPointer
 -- | This is a little helper for making it easier to construct M words.
 m :: Int -> Word
 m = M . newPointer
+
+-- | This is a little helper for making it easier to construct G words.
+g :: Int -> Word
+g = G . newPointer
+
+-- | This is a little helper for making it easier to construct P words.
+p :: Int -> Word
+p = P . newPointer
 
 -- | This is a little helper for making it easier to construct sentences.
 s :: (Word, Word, Word) -> Sentence
@@ -129,12 +141,21 @@ isN _ = False
 isM (M _) = True
 isM _ = False
 
+isG (G _) = True
+isG _ = False
+
+isP (P _) = True
+isP _ = False
+
 isNotNull w = w /= NullWord
 isNull w = w == NullWord
 
 -- Helper to create a cursor from a given sentence
 cursorAt :: Pointer -> SentenceIndex -> Cursor
 cursorAt p index = fromMaybe emptyCursor (Cursor p <$> index V.!? pred (pointer p))
+
+sentenceAt :: Pointer -> SentenceIndex -> Sentence
+sentenceAt p index = fromMaybe emptySentence (usePointer p Nothing (\x -> index V.!? x))
 
 -- | Builds a machine from a given SentenceIndex. The SentenceIndex is essentially just a program. By convention, the first sentence in the index is the starting point.
 initialize :: SentenceIndex -> Machine
@@ -143,4 +164,5 @@ initialize index = Machine
     , _midCursor = emptyCursor
     , _botCursor = cursorAt (newPointer 1) index
     , _sentenceIndex = index
+    , _value = emptySentence
     }

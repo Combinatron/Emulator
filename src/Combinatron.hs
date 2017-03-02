@@ -6,7 +6,8 @@ module Combinatron (
 
 import Prelude hiding (Word)
 import Combinatron.Operations
-import Combinatron.Types
+import Combinatron.Types hiding (isP, isG, p, g)
+import qualified Combinatron.Types as Types
 import Control.Lens (view, to)
 import System.IO.Unsafe (unsafePerformIO)
 
@@ -32,6 +33,8 @@ step m
     | isB1 m = Right $ b1 m
     | isB2 m = Right $ b2 m
     | isB3 m = Right $ b3 m
+    | isP m = Right $ p m
+    | isG m = Right $ g m
     | otherwise = Left m
 
 -- | Predicates
@@ -40,6 +43,12 @@ isNest = view (c0w0.to isN)
 
 isUnnest :: Machine -> Bool
 isUnnest m = all ($ m) [oneWord botCursor, oneWord' midCursor]
+
+isG :: Machine -> Bool
+isG = view (c0w0.to Types.isG)
+
+isP :: Machine -> Bool
+isP = view (c0w0.to Types.isP)
 
 oneCursor :: Word -> Machine -> Bool
 oneCursor w m = all ($ m) [primaryWord w, threeWord botCursor]
@@ -141,3 +150,20 @@ b3 m = rotateCursorsDown . step2 . rotateCursorsDown . step1 $ m
     where
         step1 = newNWord . copyWord c0w1 c2w1 . addSentence (s (view c1w1 m, view c2w1 m, NullWord)) c1w2
         step2 = zeroWord c0w2 . swapWords c0w2 c1w1 . swapWords c1w1 c1w0
+
+g :: Machine -> Machine
+g m = getValue p . i $ m
+    where
+        p = case view c0w0 m of
+            (G x) -> x
+            _ -> error "First word must be a G"
+
+p :: Machine -> Machine
+p m = putValue p' . i $ m
+    where
+        p' = case view c0w0 m of
+            (P x) -> x
+            _ -> error "First word must be a P"
+
+i :: Machine -> Machine
+i m = zeroWord c0w2 . swapWords c0w1 c0w2 . swapWords c0w0 c0w1 $ m

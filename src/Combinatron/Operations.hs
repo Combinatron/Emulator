@@ -11,6 +11,8 @@ module Combinatron.Operations (
   swapCursors,
   rotateCursorsUp,
   rotateCursorsDown,
+  putValue,
+  getValue,
   noWord, oneWord, twoWord, threeWord, oneWord', twoWord',
   c0w0, c0w1, c0w2, c1w0, c1w1, c1w2, c2w0, c2w1, c2w2
 ) where
@@ -32,6 +34,17 @@ writeCursor c m = m'
         p = m^.c.cursorPointer
         sentence = m^.c.cursorSentence
         m' = setSentence p sentence m
+
+getValue :: Pointer -> Machine -> Machine
+getValue p m = set value s m
+    where
+        s = sentenceAt p (m^.sentenceIndex)
+
+putValue :: Pointer -> Machine -> Machine
+putValue p m = m'
+    where
+        m' = setSentence p sentence m
+        sentence = m^.value
 
 setSentence :: Pointer -> Sentence -> Machine -> Machine
 setSentence p s m = usePointer p m (\x -> m & sentenceIndex %~ (\i -> i V.// [(x, s)]))
