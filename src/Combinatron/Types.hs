@@ -117,7 +117,10 @@ program = V.fromList . map (s $)
 
 -- | An empty cursor is one that has a pointer to 0 and all NullWords in its sentence.
 emptyCursor :: Cursor
-emptyCursor = Cursor (Pointer 0) (Sentence NullWord NullWord NullWord)
+emptyCursor = Cursor (Pointer 0) emptySentence
+
+emptySentence :: Sentence
+emptySentence = Sentence NullWord NullWord NullWord
 
 -- | Some comparison helpers
 isN (N _) = True
