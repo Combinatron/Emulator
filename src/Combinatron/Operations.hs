@@ -31,7 +31,10 @@ writeCursor c m = m'
     where
         p = m^.c.cursorPointer
         sentence = m^.c.cursorSentence
-        m' = usePointer p m (\x -> m & sentenceIndex %~ (\i -> i V.// [(x, sentence)]))
+        m' = setSentence p sentence m
+
+setSentence :: Pointer -> Sentence -> Machine -> Machine
+setSentence p s m = usePointer p m (\x -> m & sentenceIndex %~ (\i -> i V.// [(x, s)]))
 
 -- | Add a sentence to the index, writing an N word to a specified location.
 addSentence :: Sentence -> Lens' Machine Word -> Machine -> Machine
