@@ -35,7 +35,7 @@ newPointer p
 -- | Dereferencing a pointer can be a bit cumbersome, since 0 is a special value. This helper makes that process a bit easier.
 usePointer :: Pointer -> a -> (Int -> a) -> a
 usePointer (Pointer 0) x _ = x
-usePointer (Pointer x) _ f = f x
+usePointer (Pointer x) _ f = f (pred x)
 
 data Word = B | C | K | W | N Pointer | M Pointer | NullWord
     deriving (Show, Eq)
