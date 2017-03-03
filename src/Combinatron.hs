@@ -152,18 +152,10 @@ b3 m = rotateCursorsDown . step2 . rotateCursorsDown . step1 $ m
         step2 = zeroWord c0w2 . swapWords c0w2 c1w1 . swapWords c1w1 c1w0
 
 g :: Machine -> Machine
-g m = getValue p . i $ m
-    where
-        p = case view c0w0 m of
-            (G x) -> x
-            _ -> error "First word must be a G"
+g m = i . getValue c0w0 $ m
 
 p :: Machine -> Machine
-p m = putValue p' . i $ m
-    where
-        p' = case view c0w0 m of
-            (P x) -> x
-            _ -> error "First word must be a P"
+p m = i . putValue c0w0 $ m
 
 i :: Machine -> Machine
 i m = zeroWord c0w2 . swapWords c0w1 c0w2 . swapWords c0w0 c0w1 $ m
