@@ -1,11 +1,10 @@
 module Main where
 
 import Test.Hspec
-import Test.QuickCheck
+import qualified Test.Combinatron.Types as Types
 
 main = hspec spec
 
 spec :: Spec
 spec = describe "Test" $ do
-    it "returns the first element of an *arbitrary* list" $
-        property $ \x xs -> head (x:xs) == (x :: Int)
+    Types.spec
