@@ -59,6 +59,12 @@ twoCursorOneArg w m = all ($ m) [primaryWord w, twoWord botCursor, twoWord' midC
 twoCursorTwoArg :: Word -> Machine -> Bool
 twoCursorTwoArg w m = all ($ m) [primaryWord w, twoWord botCursor, threeWord midCursor]
 
+twoCursorThreeArgBottom :: Word -> Machine -> Bool
+twoCursorThreeArgBottom w m = all ($ m) [primaryWord w, threeWord botCursor, twoWord' midCursor]
+
+twoCursorThreeArgMid :: Word -> Machine -> Bool
+twoCursorThreeArgMid w m = all ($ m) [primaryWord w, twoWord botCursor, threeWord midCursor]
+
 threeCursor :: Word -> Machine -> Bool
 threeCursor w m = all ($ m) [primaryWord w, twoWord botCursor, twoWord midCursor, twoWord' topCursor]
 
@@ -75,19 +81,19 @@ isW2 :: Machine -> Bool
 isW2 = twoCursorOneArg W
 
 isC1 :: Machine -> Bool
-isC1 = twoCursorOneArg C
+isC1 = twoCursorThreeArgBottom C
 
 isC2 :: Machine -> Bool
-isC2 = twoCursorTwoArg C
+isC2 = twoCursorThreeArgMid C
 
 isC3 :: Machine -> Bool
 isC3 = threeCursor C
 
 isB1 :: Machine -> Bool
-isB1 = twoCursorOneArg B
+isB1 = twoCursorThreeArgBottom B
 
 isB2 :: Machine -> Bool
-isB2 = twoCursorTwoArg B
+isB2 = twoCursorThreeArgMid B
 
 isB3 :: Machine -> Bool
 isB3 = threeCursor B
