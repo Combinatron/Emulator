@@ -50,21 +50,23 @@ isG = view (c0w0.to Types.isG)
 isP :: Machine -> Bool
 isP = view (c0w0.to Types.isP)
 
-oneCursor :: Word -> Machine -> Bool
-oneCursor w m = all ($ m) [primaryWord w, threeWord botCursor]
+havingPropertiesAndWord :: [Machine -> Bool] -> Word -> Machine ->  Bool
+havingPropertiesAndWord preds w m = all ($ m) ((primaryWord w):preds)
 
+oneCursor :: Word -> Machine -> Bool
+oneCursor w = havingPropertiesAndWord [threeWord botCursor] w
 
 twoCursorTwoArg :: Word -> Machine -> Bool
-twoCursorTwoArg w m = all ($ m) [primaryWord w, twoWord botCursor, twoWord' midCursor]
+twoCursorTwoArg w = havingPropertiesAndWord [twoWord botCursor, twoWord' midCursor] w
 
 twoCursorThreeArgBottom :: Word -> Machine -> Bool
-twoCursorThreeArgBottom w m = all ($ m) [primaryWord w, threeWord botCursor, twoWord' midCursor]
+twoCursorThreeArgBottom w = havingPropertiesAndWord [threeWord botCursor, twoWord' midCursor] w
 
 twoCursorThreeArgMid :: Word -> Machine -> Bool
-twoCursorThreeArgMid w m = all ($ m) [primaryWord w, twoWord botCursor, threeWord midCursor]
+twoCursorThreeArgMid w = havingPropertiesAndWord [twoWord botCursor, threeWord midCursor] w
 
 threeCursor :: Word -> Machine -> Bool
-threeCursor w m = all ($ m) [primaryWord w, twoWord botCursor, twoWord midCursor, twoWord' topCursor]
+threeCursor w = havingPropertiesAndWord [twoWord botCursor, twoWord midCursor, twoWord' topCursor] w
 
 isK1 :: Machine -> Bool
 isK1 = oneCursor K
