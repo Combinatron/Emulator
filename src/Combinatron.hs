@@ -16,7 +16,7 @@ run m = case step m of
     (Left m) -> m
 
 runDebug m = case step (unsafePerformIO (printMachine m)) of
-    (Right m) -> run m
+    (Right m) -> runDebug m
     (Left m) -> m
 
 step :: Machine -> Either Machine Machine
