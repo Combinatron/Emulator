@@ -21,6 +21,7 @@ runDebug m = case step (unsafePerformIO (printMachine m)) of
 
 step :: Machine -> Either Machine Machine
 step m
+    | isLoneNest m = Right $ loneNest m
     | isNest m = Right $ nest m
     | isUnnest m = Right $ unnest m
     | isK1 m = Right $ k1 m
@@ -43,6 +44,10 @@ isNest = view (c0w0.to isN)
 
 isUnnest :: Machine -> Bool
 isUnnest m = all ($ m) [oneWord botCursor, oneWord' midCursor]
+
+-- Can never be a lone unnest operation
+isLoneNest :: Machine -> Bool
+isLoneNest m = isNest m && oneWord botCursor m
 
 isG :: Machine -> Bool
 isG = view (c0w0.to Types.isG)
@@ -104,6 +109,11 @@ primaryWord w m = view c0w0 m == w
 -- Nesting/Unnesting
 nest :: Machine -> Machine
 nest m = newMWord . rotateCursorsUp $ m
+
+loneNest :: Machine -> Machine
+loneNest m = case (view c0w0 m) of
+    (N p) -> fetchCursor p botCursor $ m
+    _ -> error "loneNest must be called on an N word!"
 
 unnest :: Machine -> Machine
 unnest m = rotateCursorsDown . copyWord c0w0 c1w0 $ m
