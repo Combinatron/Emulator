@@ -53,11 +53,9 @@ isP = view (c0w0.to Types.isP)
 oneCursor :: Word -> Machine -> Bool
 oneCursor w m = all ($ m) [primaryWord w, threeWord botCursor]
 
-twoCursorOneArg :: Word -> Machine -> Bool
-twoCursorOneArg w m = all ($ m) [primaryWord w, twoWord botCursor, twoWord' midCursor]
 
 twoCursorTwoArg :: Word -> Machine -> Bool
-twoCursorTwoArg w m = all ($ m) [primaryWord w, twoWord botCursor, threeWord midCursor]
+twoCursorTwoArg w m = all ($ m) [primaryWord w, twoWord botCursor, twoWord' midCursor]
 
 twoCursorThreeArgBottom :: Word -> Machine -> Bool
 twoCursorThreeArgBottom w m = all ($ m) [primaryWord w, threeWord botCursor, twoWord' midCursor]
@@ -72,13 +70,13 @@ isK1 :: Machine -> Bool
 isK1 = oneCursor K
 
 isK2 :: Machine -> Bool
-isK2 = twoCursorOneArg K
+isK2 = twoCursorTwoArg K
 
 isW1 :: Machine -> Bool
 isW1 = oneCursor W
 
 isW2 :: Machine -> Bool
-isW2 = twoCursorOneArg W
+isW2 = twoCursorTwoArg W
 
 isC1 :: Machine -> Bool
 isC1 = twoCursorThreeArgBottom C
