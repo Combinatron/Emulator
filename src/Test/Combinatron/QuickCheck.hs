@@ -1,11 +1,12 @@
-{-# LANGUAGE TypeSynonymInstances, FlexibleInstances, GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE TypeSynonymInstances, FlexibleInstances, GeneralizedNewtypeDeriving, RankNTypes #-}
 module Test.Combinatron.QuickCheck where
 
 import Prelude hiding (Word)
 import Test.QuickCheck
 import Combinatron.Types
 import qualified Data.Vector as V
-import Data.List (partition)
+import Data.List (partition, nub)
+import Control.Lens (Lens')
 
 -- QuickCheck Instances
 instance Arbitrary Word where
@@ -45,3 +46,17 @@ newtype NonEmptySentenceIndex = NonEmptySentenceIndex SentenceIndex
 
 instance Arbitrary NonEmptySentenceIndex where
     arbitrary = NonEmptySentenceIndex . V.fromList <$> listOf1 arbitrary
+
+data CursorSelection = CursorSelection String (Lens' Machine Cursor)
+
+instance Show CursorSelection where
+    show (CursorSelection s _) = "{CursorSelection " ++ s ++ "}"
+
+instance Arbitrary CursorSelection where
+    arbitrary = elements $ [CursorSelection "botCursor" botCursor, CursorSelection "midCursor" midCursor, CursorSelection "topCursor" topCursor]
+
+newtype UniqueSentenceIndex = UniqueSentenceIndex SentenceIndex
+    deriving (Show)
+
+instance Arbitrary UniqueSentenceIndex where
+    arbitrary = UniqueSentenceIndex . V.fromList . nub <$> listOf1 arbitrary
