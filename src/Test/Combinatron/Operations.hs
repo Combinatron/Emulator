@@ -13,6 +13,7 @@ import qualified Data.Vector as V
 
 spec = do
     fetchCursor
+    writeCursor
 
 makePointer :: Combinatron.SentenceIndex -> Positive Int -> Combinatron.Pointer
 makePointer program (Positive p) = Combinatron.newPointer $ (p `mod` V.length program) + 1
@@ -75,3 +76,42 @@ fetchCursor = do
                 let (pointer, _, newMachine, _) = fetchCursorTestData oldProgram p cursor
                     cp = view (cursor . Combinatron.cursorPointer) newMachine
                 in cp == pointer || view cursor newMachine == Combinatron.emptyCursor
+
+writeCursorTestData :: Combinatron.Machine -> Lens' Combinatron.Machine Combinatron.Cursor -> (Combinatron.Machine, Combinatron.SentenceIndex, Combinatron.SentenceIndex)
+writeCursorTestData oldMachine cursor = (newMachine, oldProgram, newProgram)
+    where
+        oldProgram = view Combinatron.sentenceIndex oldMachine
+        newMachine = Ops.writeCursor cursor oldMachine
+        newProgram = view Combinatron.sentenceIndex newMachine
+
+-- The SteppedMachine generator makes these tests more robust as there's a
+-- higher likelihood that the selected cursor will be filled.
+writeCursor :: Spec
+writeCursor = do
+    describe "writeCursor" $ do
+        it "does not change the size of the index" $ property $
+            \ (SteppedMachine oldMachine) (CursorSelection _ cursor) ->
+                let (_, oldProgram, newProgram) = writeCursorTestData oldMachine cursor
+                in V.length oldProgram == V.length newProgram
+
+        it "does not modify the cursors" $ property $
+            \ (SteppedMachine oldMachine) (CursorSelection _ cursor) ->
+                let (newMachine, _, _) = writeCursorTestData oldMachine cursor
+                    numModified = length $ filter id $ map (\ c -> view c newMachine /= view c oldMachine) [Combinatron.botCursor, Combinatron.midCursor, Combinatron.topCursor]
+                in numModified == 0
+
+        it "the sentence at the location of the cursor in the index must be the same as the cursor" $ property $
+            \ (SteppedMachine oldMachine) (CursorSelection _ cursor) ->
+                let (newMachine, _, newProgram) = writeCursorTestData oldMachine cursor
+                    cp = view (cursor . Combinatron.cursorPointer) newMachine
+                    cs = view (cursor . Combinatron.cursorSentence) newMachine
+                    progS = Combinatron.usePointer cp Combinatron.emptySentence ((V.!) newProgram)
+                in cs == progS
+
+        it "does not modify any location other than the pointed one" $ property $
+            \ (SteppedMachine oldMachine) (CursorSelection _ cursor) ->
+                let (newMachine, oldProgram, newProgram) = writeCursorTestData oldMachine cursor
+                    cp = view (cursor . Combinatron.cursorPointer) newMachine
+                    oldNew = V.zipWith (/=) oldProgram newProgram
+                    numModified = V.length $ V.filter id oldNew
+                in (numModified == 1 && Combinatron.usePointer cp True (\i -> oldNew V.! i)) || numModified == 0

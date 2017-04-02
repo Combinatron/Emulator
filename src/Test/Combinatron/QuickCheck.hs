@@ -4,6 +4,7 @@ module Test.Combinatron.QuickCheck where
 import Prelude hiding (Word)
 import Test.QuickCheck
 import Combinatron.Types
+import Combinatron (runN)
 import qualified Data.Vector as V
 import Data.List (partition, nub)
 import Control.Lens (Lens')
@@ -60,3 +61,32 @@ newtype UniqueSentenceIndex = UniqueSentenceIndex SentenceIndex
 
 instance Arbitrary UniqueSentenceIndex where
     arbitrary = UniqueSentenceIndex . V.fromList . nub <$> listOf1 arbitrary
+
+newtype SteppedMachine = SteppedMachine Machine
+    deriving (Show)
+
+instance Arbitrary SteppedMachine where
+    arbitrary = do
+        (ValidProgram program) <- arbitrary :: Gen ValidProgram
+        steps <- resize (V.length program) (arbitrarySizedNatural :: Gen Int)
+        return $ SteppedMachine $ runN steps $ initialize program
+
+-- Valid programs must have no repeated sentences and all pointers must be
+-- within the length of the program.
+newtype ValidProgram = ValidProgram SentenceIndex
+    deriving (Show)
+
+instance Arbitrary ValidProgram where
+    arbitrary = do
+        (NonEmptySentenceIndex prog) <- arbitrary :: Gen NonEmptySentenceIndex
+        let l = V.length uProg
+            uProg = V.fromList . nub . V.toList $ prog
+            vProg = V.map mapper uProg
+            mapper (Sentence x y z) = Sentence (fixer x) (fixer y) (fixer z)
+            fixer e = case e of
+                (N p) -> n (usePointer p 0 ((+1) . flip mod l))
+                (M p) -> m (usePointer p 0 ((+1) . flip mod l))
+                (G p) -> g (usePointer p 0 ((+1) . flip mod l))
+                (P p') -> p (usePointer p' 0 ((+1) . flip mod l))
+                x -> x
+        return $ ValidProgram vProg
