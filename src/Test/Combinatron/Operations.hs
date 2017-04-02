@@ -17,8 +17,8 @@ spec = do
 makePointer :: Combinatron.SentenceIndex -> Positive Int -> Combinatron.Pointer
 makePointer program (Positive p) = Combinatron.newPointer $ (p `mod` V.length program) + 1
 
-testData :: Combinatron.SentenceIndex -> Positive Int -> Lens' Combinatron.Machine Combinatron.Cursor -> (Combinatron.Pointer, Combinatron.Machine, Combinatron.Machine, Combinatron.SentenceIndex)
-testData program p cursor = (pointer, machine, newMachine, newProgram)
+fetchCursorTestData :: Combinatron.SentenceIndex -> Positive Int -> Lens' Combinatron.Machine Combinatron.Cursor -> (Combinatron.Pointer, Combinatron.Machine, Combinatron.Machine, Combinatron.SentenceIndex)
+fetchCursorTestData program p cursor = (pointer, machine, newMachine, newProgram)
     where
         pointer = makePointer program p
         machine = Combinatron.initialize program
@@ -48,23 +48,23 @@ fetchCursor = do
             -- indexes it would require forcing the pointer, so I don't think
             -- it is a problem.
             \ oldProgram (CursorSelection _ cursor) p ->
-                let (_, _, _, newProgram) = testData oldProgram p cursor
+                let (_, _, _, newProgram) = fetchCursorTestData oldProgram p cursor
                 in oldProgram == newProgram
 
         it "only modifies the specified cursor or does not modify anything" $ property $
             \ (NonEmptySentenceIndex oldProgram) (CursorSelection _ cursor) p ->
-                let (_, machine, newMachine, _) = testData oldProgram p cursor
+                let (_, machine, newMachine, _) = fetchCursorTestData oldProgram p cursor
                     numModified = length $ filter id $ map (\ c -> view c newMachine /= view c machine) [Combinatron.botCursor, Combinatron.midCursor, Combinatron.topCursor]
                 in (numModified == 1 && view cursor newMachine /= view cursor machine) || numModified == 0
 
         it "the specified cursor must contain a sentence that is in the sentence index or it is null" $ property $
             \ (NonEmptySentenceIndex oldProgram) (CursorSelection _ cursor) p ->
-                let (_, _, newMachine, _) = testData oldProgram p cursor
+                let (_, _, newMachine, _) = fetchCursorTestData oldProgram p cursor
                 in V.elem (view (cursor . Combinatron.cursorSentence) newMachine) oldProgram || (view cursor newMachine == Combinatron.emptyCursor)
 
         it "the specified cursor must contain the sentence in the index that it points to" $ property $
             \ (NonEmptySentenceIndex oldProgram) (CursorSelection _ cursor) p ->
-                let (_, _, newMachine, _) = testData oldProgram p cursor
+                let (_, _, newMachine, _) = fetchCursorTestData oldProgram p cursor
                     cp = view (cursor . Combinatron.cursorPointer) newMachine
                     cs = view (cursor . Combinatron.cursorSentence) newMachine
                     ms = Combinatron.usePointer cp Nothing ((V.!?) oldProgram)
@@ -72,6 +72,6 @@ fetchCursor = do
 
         it "the specified cursor must point to the same pointer as requested" $ property $
             \ (NonEmptySentenceIndex oldProgram) (CursorSelection _ cursor) p ->
-                let (pointer, _, newMachine, _) = testData oldProgram p cursor
+                let (pointer, _, newMachine, _) = fetchCursorTestData oldProgram p cursor
                     cp = view (cursor . Combinatron.cursorPointer) newMachine
                 in cp == pointer || view cursor newMachine == Combinatron.emptyCursor
