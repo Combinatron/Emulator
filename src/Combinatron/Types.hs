@@ -23,7 +23,7 @@ import Control.Lens
 import Data.Maybe (fromMaybe)
 
 -- | A Pointer is just a wrapper around an Int. It only exposes printing and equality functionality.
-newtype Pointer = Pointer { pointer :: Int }
+newtype Pointer = Pointer Int
     deriving (Show, Eq)
 
 -- | Pointers must be 0, so only this constructor is exported from the module.
@@ -152,7 +152,7 @@ isNull w = w == NullWord
 
 -- Helper to create a cursor from a given sentence
 cursorAt :: Pointer -> SentenceIndex -> Cursor
-cursorAt p index = fromMaybe emptyCursor (Cursor p <$> index V.!? pred (pointer p))
+cursorAt p index = fromMaybe emptyCursor (usePointer p Nothing (\x -> Cursor p <$> index V.!? x))
 
 sentenceAt :: Pointer -> SentenceIndex -> Sentence
 sentenceAt p index = fromMaybe emptySentence (usePointer p Nothing (\x -> index V.!? x))
