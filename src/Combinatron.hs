@@ -1,7 +1,8 @@
 {-# LANGUAGE Rank2Types #-}
 module Combinatron (
   run,
-  runDebug
+  runDebug,
+  runN
 ) where
 
 import Prelude hiding (Word)
@@ -17,6 +18,11 @@ run m = case step m of
 
 runDebug m = case step (unsafePerformIO (printMachine m)) of
     (Right m) -> runDebug m
+    (Left m) -> m
+
+runN 0 m = m
+runN n m = case step m of
+    (Right m) -> runN (n - 1) m
     (Left m) -> m
 
 step :: Machine -> Either Machine Machine
