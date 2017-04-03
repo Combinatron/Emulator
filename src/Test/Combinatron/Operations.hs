@@ -15,6 +15,14 @@ spec = do
     fetchCursor
     writeCursor
     addSentence
+    newMWord
+
+doesNotModifySentenceIndex :: Combinatron.Machine -> (Combinatron.Machine -> Combinatron.Machine) -> Bool
+doesNotModifySentenceIndex oldMachine op = oldProgram == newProgram
+    where
+        oldProgram = view Combinatron.sentenceIndex oldMachine
+        newMachine = op oldMachine
+        newProgram = view Combinatron.sentenceIndex newMachine
 
 makePointer :: Combinatron.SentenceIndex -> Positive Int -> Combinatron.Pointer
 makePointer program (Positive p) = Combinatron.newPointer $ (p `mod` V.length program) + 1
@@ -49,6 +57,7 @@ fetchCursor = do
             -- think that if the `fetchCursor` function modified the sentence
             -- indexes it would require forcing the pointer, so I don't think
             -- it is a problem.
+            -- TODO: refactor to use doesNotModifySentenceIndex
             \ oldProgram (CursorSelection _ cursor) p ->
                 let (_, _, _, newProgram) = fetchCursorTestData oldProgram p cursor
                 in oldProgram == newProgram
@@ -149,3 +158,26 @@ addSentence = do
                     numModified = length $ filter id $ concatMap sentenceModified [Combinatron.botCursor, Combinatron.midCursor, Combinatron.topCursor]
                     sentenceModified s = map (\ w -> view (s . Combinatron.cursorSentence . w) newMachine /= view (s . Combinatron.cursorSentence . w) oldMachine) [Combinatron.priWord, Combinatron.secWord, Combinatron.triWord]
                 in numModified == 1 && (view (toLens cwsel) newMachine /= view (toLens cwsel) oldMachine)
+
+newMWord :: Spec
+newMWord = do
+    describe "newMWord" $ do
+        it "does not modify the sentence index" $ property $
+            \ (SteppedMachine m) -> doesNotModifySentenceIndex m Ops.newMWord
+
+        it "does not modify the top or bottom cursors" $ property $
+            \ (SteppedMachine m) ->
+                let newMachine = Ops.newMWord m
+                in (view Combinatron.topCursor m == view Combinatron.topCursor newMachine) && (view Combinatron.botCursor m == view Combinatron.botCursor newMachine)
+
+        it "the first word in the middle cursor must be an M" $ property $
+            \ (SteppedMachine m) ->
+                let newMachine = Ops.newMWord m
+                in Combinatron.isM (view (Combinatron.midCursor . Combinatron.cursorSentence . Combinatron.priWord) newMachine)
+
+        it "the first word in the middle cursor must point to the location of the top cursor" $ property $
+            \ (SteppedMachine m) ->
+                let newMachine = Ops.newMWord m
+                    tp = view (Combinatron.topCursor . Combinatron.cursorPointer) newMachine
+                    (Combinatron.M p) = view (Combinatron.midCursor . Combinatron.cursorSentence . Combinatron.priWord) newMachine
+                in p == tp
