@@ -16,6 +16,7 @@ spec = do
     writeCursor
     addSentence
     newMWord
+    newNWord
 
 doesNotModifySentenceIndex :: Combinatron.Machine -> (Combinatron.Machine -> Combinatron.Machine) -> Bool
 doesNotModifySentenceIndex oldMachine op = oldProgram == newProgram
@@ -181,3 +182,26 @@ newMWord = do
                     tp = view (Combinatron.topCursor . Combinatron.cursorPointer) newMachine
                     (Combinatron.M p) = view (Combinatron.midCursor . Combinatron.cursorSentence . Combinatron.priWord) newMachine
                 in p == tp
+
+newNWord :: Spec
+newNWord = do
+    describe "newNWord" $ do
+        it "does not modify the sentence index" $ property $
+            \ (SteppedMachine m) -> doesNotModifySentenceIndex m Ops.newNWord
+
+        it "does not modify the top or bottom cursors" $ property $
+            \ (SteppedMachine m) ->
+                let newMachine = Ops.newNWord m
+                in (view Combinatron.topCursor m == view Combinatron.topCursor newMachine) && (view Combinatron.botCursor m == view Combinatron.botCursor newMachine)
+
+        it "the first word in the middle cursor must be an N" $ property $
+            \ (SteppedMachine m) ->
+                let newMachine = Ops.newNWord m
+                in Combinatron.isN (view (Combinatron.midCursor . Combinatron.cursorSentence . Combinatron.priWord) newMachine)
+
+        it "the first word in the middle cursor must point to the location of the bottom cursor" $ property $
+            \ (SteppedMachine m) ->
+                let newMachine = Ops.newNWord m
+                    bp = view (Combinatron.botCursor . Combinatron.cursorPointer) newMachine
+                    (Combinatron.N p) = view (Combinatron.midCursor . Combinatron.cursorSentence . Combinatron.priWord) newMachine
+                in p == bp
