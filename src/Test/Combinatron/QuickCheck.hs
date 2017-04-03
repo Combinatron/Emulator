@@ -90,3 +90,19 @@ instance Arbitrary ValidProgram where
                 (P p') -> p (usePointer p' 0 ((+1) . flip mod l))
                 x -> x
         return $ ValidProgram vProg
+
+data WordSelection = WordSelection String (Lens' Sentence Word)
+
+instance Show WordSelection where
+    show (WordSelection s _) = "{WordSelection " ++ s ++ "}"
+
+instance Arbitrary WordSelection where
+    arbitrary = elements $ [WordSelection "priWord" priWord, WordSelection "secWord" secWord, WordSelection "triWord" triWord]
+
+data CWSelection = CWSelection CursorSelection WordSelection
+    deriving (Show)
+
+instance Arbitrary CWSelection where
+    arbitrary = CWSelection <$> arbitrary <*> arbitrary
+
+toLens (CWSelection (CursorSelection _ c) (WordSelection _ w)) = c.cursorSentence.w
