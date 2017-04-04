@@ -18,6 +18,7 @@ spec = do
     newMWord
     newNWord
     swapWords
+    copyWord
 
 doesNotModifySentenceIndex :: Combinatron.Machine -> (Combinatron.Machine -> Combinatron.Machine) -> Bool
 doesNotModifySentenceIndex oldMachine op = oldProgram == newProgram
@@ -233,3 +234,19 @@ swapWords = do
                     old = \ cw -> view (toLens cw) oldMachine
                     new = \ cw -> view (toLens cw) newMachine
                 in old cw1 == new cw2 && old cw2 == new cw1
+
+copyWord :: Spec
+copyWord = do
+    describe "copyWord" $ do
+        it "does not modify the sentence index" $ property $
+            \ (SteppedMachine m) cw1 cw2 -> doesNotModifySentenceIndex m (Ops.copyWord (toLens cw1) (toLens cw2))
+
+        it "only modifies the second word argument" $ property $
+            \ (SteppedMachine m) notModified modified ->
+                let newMachine = Ops.copyWord (toLens notModified) (toLens modified) m
+                    numModified = numberOfModifiedWords m newMachine
+                in numModified == 0 || (numModified == 1 && view (toLens modified) m /= view (toLens modified) newMachine)
+        it "the second word is the same as the first word" $ property $
+            \ (SteppedMachine m) notModified modified ->
+                let newMachine = Ops.copyWord (toLens notModified) (toLens modified) m
+                in view (toLens notModified) newMachine == view (toLens modified) newMachine
