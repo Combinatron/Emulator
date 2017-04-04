@@ -29,6 +29,11 @@ doesNotModifySentenceIndex oldMachine op = oldProgram == newProgram
 makePointer :: Combinatron.SentenceIndex -> Positive Int -> Combinatron.Pointer
 makePointer program (Positive p) = Combinatron.newPointer $ (p `mod` V.length program) + 1
 
+numberOfModifiedWords oldMachine newMachine = numModified
+    where
+        numModified = length $ filter id $ concatMap sentenceModified [Combinatron.botCursor, Combinatron.midCursor, Combinatron.topCursor]
+        sentenceModified s = map (\ w -> view (s . Combinatron.cursorSentence . w) newMachine /= view (s . Combinatron.cursorSentence . w) oldMachine) [Combinatron.priWord, Combinatron.secWord, Combinatron.triWord]
+
 fetchCursorTestData :: Combinatron.SentenceIndex -> Positive Int -> Lens' Combinatron.Machine Combinatron.Cursor -> (Combinatron.Pointer, Combinatron.Machine, Combinatron.Machine, Combinatron.SentenceIndex)
 fetchCursorTestData program p cursor = (pointer, machine, newMachine, newProgram)
     where
@@ -157,8 +162,7 @@ addSentence = do
         it "only modifies the given word" $ property $
             \ (ValidProgram oldProgram) cwsel newSentence ->
                 let (_, newMachine, oldMachine) = addSentenceTestData oldProgram newSentence (toLens cwsel)
-                    numModified = length $ filter id $ concatMap sentenceModified [Combinatron.botCursor, Combinatron.midCursor, Combinatron.topCursor]
-                    sentenceModified s = map (\ w -> view (s . Combinatron.cursorSentence . w) newMachine /= view (s . Combinatron.cursorSentence . w) oldMachine) [Combinatron.priWord, Combinatron.secWord, Combinatron.triWord]
+                    numModified = numberOfModifiedWords oldMachine newMachine
                 in numModified == 1 && (view (toLens cwsel) newMachine /= view (toLens cwsel) oldMachine)
 
 newMWord :: Spec
@@ -216,8 +220,7 @@ swapWords = do
         it "only modifies the two words or modifies no words" $ property $
             \ (SteppedMachine oldMachine) cw1 cw2 ->
                 let newMachine = Ops.swapWords (toLens cw1) (toLens cw2) oldMachine
-                    numModified = length $ filter id $ concatMap sentenceModified [Combinatron.botCursor, Combinatron.midCursor, Combinatron.topCursor]
-                    sentenceModified s = map (\ w -> view (s . Combinatron.cursorSentence . w) newMachine /= view (s . Combinatron.cursorSentence . w) oldMachine) [Combinatron.priWord, Combinatron.secWord, Combinatron.triWord]
+                    numModified = numberOfModifiedWords oldMachine newMachine
                 in numModified == 0 || (numModified == 2 && view (toLens cw1) oldMachine /= view (toLens cw1) newMachine && view (toLens cw2) oldMachine /= view (toLens cw2) newMachine)
 
         it "the two words are swapped" $ property $ do
