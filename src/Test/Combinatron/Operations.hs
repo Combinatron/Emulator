@@ -17,6 +17,7 @@ spec = do
     addSentence
     newMWord
     newNWord
+    swapWords
 
 doesNotModifySentenceIndex :: Combinatron.Machine -> (Combinatron.Machine -> Combinatron.Machine) -> Bool
 doesNotModifySentenceIndex oldMachine op = oldProgram == newProgram
@@ -205,3 +206,23 @@ newNWord = do
                     bp = view (Combinatron.botCursor . Combinatron.cursorPointer) newMachine
                     (Combinatron.N p) = view (Combinatron.midCursor . Combinatron.cursorSentence . Combinatron.priWord) newMachine
                 in p == bp
+
+swapWords :: Spec
+swapWords = do
+    describe "swapWords" $ do
+        it "does not modify the sentence index" $ property $
+            \ (SteppedMachine m) cw1 cw2 -> doesNotModifySentenceIndex m (Ops.swapWords (toLens cw1) (toLens cw2))
+
+        it "only modifies the two words or modifies no words" $ property $
+            \ (SteppedMachine oldMachine) cw1 cw2 ->
+                let newMachine = Ops.swapWords (toLens cw1) (toLens cw2) oldMachine
+                    numModified = length $ filter id $ concatMap sentenceModified [Combinatron.botCursor, Combinatron.midCursor, Combinatron.topCursor]
+                    sentenceModified s = map (\ w -> view (s . Combinatron.cursorSentence . w) newMachine /= view (s . Combinatron.cursorSentence . w) oldMachine) [Combinatron.priWord, Combinatron.secWord, Combinatron.triWord]
+                in numModified == 0 || (numModified == 2 && view (toLens cw1) oldMachine /= view (toLens cw1) newMachine && view (toLens cw2) oldMachine /= view (toLens cw2) newMachine)
+
+        it "the two words are swapped" $ property $ do
+            \ (SteppedMachine oldMachine) cw1 cw2 ->
+                let newMachine = Ops.swapWords (toLens cw1) (toLens cw2) oldMachine
+                    old = \ cw -> view (toLens cw) oldMachine
+                    new = \ cw -> view (toLens cw) newMachine
+                in old cw1 == new cw2 && old cw2 == new cw1
