@@ -34,6 +34,10 @@ numberOfModifiedWords oldMachine newMachine = numModified
         numModified = length $ filter id $ concatMap sentenceModified [Combinatron.botCursor, Combinatron.midCursor, Combinatron.topCursor]
         sentenceModified s = map (\ w -> view (s . Combinatron.cursorSentence . w) newMachine /= view (s . Combinatron.cursorSentence . w) oldMachine) [Combinatron.priWord, Combinatron.secWord, Combinatron.triWord]
 
+numberOfModifiedCursors oldMachine newMachine = numModified
+    where
+        numModified = length $ filter id $ map (\ c -> view c newMachine /= view c oldMachine) [Combinatron.botCursor, Combinatron.midCursor, Combinatron.topCursor]
+
 fetchCursorTestData :: Combinatron.SentenceIndex -> Positive Int -> Lens' Combinatron.Machine Combinatron.Cursor -> (Combinatron.Pointer, Combinatron.Machine, Combinatron.Machine, Combinatron.SentenceIndex)
 fetchCursorTestData program p cursor = (pointer, machine, newMachine, newProgram)
     where
@@ -72,7 +76,7 @@ fetchCursor = do
         it "only modifies the specified cursor or does not modify anything" $ property $
             \ (NonEmptySentenceIndex oldProgram) (CursorSelection _ cursor) p ->
                 let (_, machine, newMachine, _) = fetchCursorTestData oldProgram p cursor
-                    numModified = length $ filter id $ map (\ c -> view c newMachine /= view c machine) [Combinatron.botCursor, Combinatron.midCursor, Combinatron.topCursor]
+                    numModified = numberOfModifiedCursors machine newMachine
                 in (numModified == 1 && view cursor newMachine /= view cursor machine) || numModified == 0
 
         it "the specified cursor must contain a sentence that is in the sentence index or it is null" $ property $
@@ -114,7 +118,7 @@ writeCursor = do
         it "does not modify the cursors" $ property $
             \ (SteppedMachine oldMachine) (CursorSelection _ cursor) ->
                 let (newMachine, _, _) = writeCursorTestData oldMachine cursor
-                    numModified = length $ filter id $ map (\ c -> view c newMachine /= view c oldMachine) [Combinatron.botCursor, Combinatron.midCursor, Combinatron.topCursor]
+                    numModified = numberOfModifiedCursors oldMachine newMachine
                 in numModified == 0
 
         it "the sentence at the location of the cursor in the index must be the same as the cursor" $ property $
