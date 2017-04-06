@@ -20,6 +20,7 @@ spec = do
     swapWords
     copyWord
     zeroWord
+    swapCursors
 
 doesNotModifySentenceIndex :: Combinatron.Machine -> (Combinatron.Machine -> Combinatron.Machine) -> Bool
 doesNotModifySentenceIndex oldMachine op = oldProgram == newProgram
@@ -268,3 +269,28 @@ zeroWord = do
             \ (SteppedMachine m) cw ->
                 let newMachine = Ops.zeroWord (toLens cw) m
                 in view (toLens cw) newMachine == Combinatron.NullWord
+
+swapCursors :: Spec
+swapCursors = do
+    describe "swapCursors" $ do
+        it "does not modify the sentence index" $ property $
+            \ (SteppedMachine m) (CursorSelection _ c1) (CursorSelection _ c2) -> doesNotModifySentenceIndex m (Ops.swapCursors c1 c2)
+
+        it "swaps the cursors" $ property $
+            \ (SteppedMachine m) (CursorSelection _ c1) (CursorSelection _ c2) ->
+                let newMachine = Ops.swapCursors c1 c2 m
+                    oldC1 = view c1 m
+                    oldC2 = view c2 m
+                    newC1 = view c1 newMachine
+                    newC2 = view c2 newMachine
+                in oldC1 == newC2 && oldC2 == newC1
+
+        it "does not modify non-pointed cursor" $ property $
+            \ (SteppedMachine m) (CursorSelection _ c1) (CursorSelection _ c2) ->
+                let newMachine = Ops.swapCursors c1 c2 m
+                    numModified = numberOfModifiedCursors m newMachine
+                    oldC1 = view c1 m
+                    oldC2 = view c2 m
+                    newC1 = view c1 newMachine
+                    newC2 = view c2 newMachine
+                in numModified == 0 || numModified == 2 && oldC1 /= newC1 && oldC2 /= newC2
