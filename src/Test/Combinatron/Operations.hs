@@ -19,6 +19,7 @@ spec = do
     newNWord
     swapWords
     copyWord
+    zeroWord
 
 doesNotModifySentenceIndex :: Combinatron.Machine -> (Combinatron.Machine -> Combinatron.Machine) -> Bool
 doesNotModifySentenceIndex oldMachine op = oldProgram == newProgram
@@ -250,3 +251,20 @@ copyWord = do
             \ (SteppedMachine m) notModified modified ->
                 let newMachine = Ops.copyWord (toLens notModified) (toLens modified) m
                 in view (toLens notModified) newMachine == view (toLens modified) newMachine
+
+zeroWord :: Spec
+zeroWord = do
+    describe "zeroWord" $ do
+        it "does not modify the sentence index" $ property $
+            \ (SteppedMachine m) cw -> doesNotModifySentenceIndex m (Ops.zeroWord (toLens cw))
+
+        it "only modifies the pointed word" $ property $
+            \ (SteppedMachine m) cw ->
+                let newMachine = Ops.zeroWord (toLens cw) m
+                    numModified = numberOfModifiedWords m newMachine
+                in numModified == 0 || numModified == 1 && view (toLens cw) m /= view (toLens cw) newMachine
+
+        it "zero's the pointed word" $ property $
+            \ (SteppedMachine m) cw ->
+                let newMachine = Ops.zeroWord (toLens cw) m
+                in view (toLens cw) newMachine == Combinatron.NullWord
