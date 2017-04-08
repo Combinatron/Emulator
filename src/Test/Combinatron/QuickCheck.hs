@@ -65,6 +65,7 @@ instance Arbitrary UniqueSentenceIndex where
 newtype SteppedMachine = SteppedMachine Machine
     deriving (Show)
 
+-- FIXME: Generate machines that end up with words in multiple cursors
 instance Arbitrary SteppedMachine where
     arbitrary = do
         (ValidProgram program) <- arbitrary :: Gen ValidProgram
