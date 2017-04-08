@@ -41,6 +41,11 @@ numberOfModifiedCursors oldMachine newMachine = numModified
     where
         numModified = length $ filter id $ map (\ c -> view c newMachine /= view c oldMachine) [Combinatron.botCursor, Combinatron.midCursor, Combinatron.topCursor]
 
+numberOfModifiedSentences oldProgram newProgram = numModified
+    where
+        oldNew = V.zipWith (/=) oldProgram newProgram
+        numModified = V.length $ V.filter id oldNew
+
 fetchCursorTestData :: Combinatron.SentenceIndex -> Positive Int -> Lens' Combinatron.Machine Combinatron.Cursor -> (Combinatron.Pointer, Combinatron.Machine, Combinatron.Machine, Combinatron.SentenceIndex)
 fetchCursorTestData program p cursor = (pointer, machine, newMachine, newProgram)
     where
@@ -136,9 +141,8 @@ writeCursor = do
             \ (SteppedMachine oldMachine) (CursorSelection _ cursor) ->
                 let (newMachine, oldProgram, newProgram) = writeCursorTestData oldMachine cursor
                     cp = view (cursor . Combinatron.cursorPointer) newMachine
-                    oldNew = V.zipWith (/=) oldProgram newProgram
-                    numModified = V.length $ V.filter id oldNew
-                in (numModified == 1 && Combinatron.usePointer cp True (\i -> oldNew V.! i)) || numModified == 0
+                    numModified = numberOfModifiedSentences oldProgram newProgram
+                in (numModified == 1 && Combinatron.usePointer cp True (\i -> oldProgram V.! i /= newProgram V.! i)) || numModified == 0
 
 addSentenceTestData :: Combinatron.SentenceIndex -> Combinatron.Sentence -> Lens' Combinatron.Machine Combinatron.Word -> (Combinatron.SentenceIndex, Combinatron.Machine, Combinatron.Machine)
 addSentenceTestData prog s cw = (newProgram, newMachine, oldMachine)
