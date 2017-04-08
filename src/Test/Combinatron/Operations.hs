@@ -21,6 +21,7 @@ spec = do
     copyWord
     zeroWord
     swapCursors
+    putValue
 
 doesNotModifySentenceIndex :: Combinatron.Machine -> (Combinatron.Machine -> Combinatron.Machine) -> Bool
 doesNotModifySentenceIndex oldMachine op = oldProgram == newProgram
@@ -28,6 +29,13 @@ doesNotModifySentenceIndex oldMachine op = oldProgram == newProgram
         oldProgram = view Combinatron.sentenceIndex oldMachine
         newMachine = op oldMachine
         newProgram = view Combinatron.sentenceIndex newMachine
+
+doesNotModifyCursors :: Combinatron.Machine -> (Combinatron.Machine -> Combinatron.Machine) -> Bool
+doesNotModifyCursors oldMachine op = oldCursors == newCursors
+    where
+        newMachine = op oldMachine
+        oldCursors = map (flip view oldMachine) [Combinatron.botCursor, Combinatron.midCursor, Combinatron.topCursor]
+        newCursors = map (flip view newMachine) [Combinatron.botCursor, Combinatron.midCursor, Combinatron.topCursor]
 
 makePointer :: Combinatron.SentenceIndex -> Positive Int -> Combinatron.Pointer
 makePointer program (Positive p) = Combinatron.newPointer $ (p `mod` V.length program) + 1
@@ -298,3 +306,36 @@ swapCursors = do
                     newC1 = view c1 newMachine
                     newC2 = view c2 newMachine
                 in numModified == 0 || numModified == 2 && oldC1 /= newC1 && oldC2 /= newC2
+
+putValue :: Spec
+putValue = do
+    describe "putValue" $ do
+        it "does not modify the cursors" $ property $
+            \ (MachineWithValue m) p -> doesNotModifyCursors m (Ops.putValue (makePointer (view Combinatron.sentenceIndex m) p))
+
+        it "does not modify the value" $ property $
+            \ (MachineWithValue m) p ->
+                let newMachine = Ops.putValue pointer m
+                    pointer = makePointer oldProgram p
+                    oldProgram = view Combinatron.sentenceIndex m
+                    oldV = view Combinatron.value m
+                    newV = view Combinatron.value newMachine
+                in oldV == newV
+
+        it "the sentence at the location pointed to in the index must be the same as the value" $ property $
+            \ (MachineWithValue m) p ->
+                let newMachine = Ops.putValue pointer m
+                    pointer = makePointer oldProgram p
+                    newProgram = view Combinatron.sentenceIndex newMachine
+                    oldProgram = view Combinatron.sentenceIndex m
+                    v = view Combinatron.value newMachine
+                in Combinatron.usePointer pointer False (\ i -> maybe False id $ ((==) v) <$> newProgram V.!? i)
+
+        it "does not modify any location other than the pointed one" $ property $
+            \ (MachineWithValue m) p ->
+                let newMachine = Ops.putValue pointer m
+                    pointer = makePointer oldProgram p
+                    newProgram = view Combinatron.sentenceIndex newMachine
+                    oldProgram = view Combinatron.sentenceIndex m
+                    numModified = numberOfModifiedSentences oldProgram newProgram
+                in (numModified == 1 && Combinatron.usePointer pointer True (\i -> oldProgram V.! i /= newProgram V.! i)) || numModified == 0

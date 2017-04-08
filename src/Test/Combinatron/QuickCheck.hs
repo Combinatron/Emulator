@@ -7,7 +7,7 @@ import Combinatron.Types
 import Combinatron (runN)
 import qualified Data.Vector as V
 import Data.List (partition, nub)
-import Control.Lens (Lens')
+import Control.Lens (Lens', set)
 
 -- QuickCheck Instances
 instance Arbitrary Word where
@@ -106,3 +106,12 @@ instance Arbitrary CWSelection where
     arbitrary = CWSelection <$> arbitrary <*> arbitrary
 
 toLens (CWSelection (CursorSelection _ c) (WordSelection _ w)) = c.cursorSentence.w
+
+data MachineWithValue = MachineWithValue Machine
+    deriving (Show)
+
+instance Arbitrary MachineWithValue where
+    arbitrary = do
+        v <- arbitrary
+        (NonEmptySentenceIndex p) <- arbitrary
+        return $ MachineWithValue $ set value v $ initialize p
