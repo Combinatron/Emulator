@@ -35,22 +35,16 @@ writeCursor c m = m'
         sentence = m^.c.cursorSentence
         m' = setSentence p sentence m
 
-getValue :: Lens' Machine Word -> Machine -> Machine
-getValue w m = set value s m
+getValue :: Pointer -> Machine -> Machine
+getValue p m = set value s m
     where
-        p = case m^.w of
-            (G x) -> x
-            _ -> error "getValue must be called on a G word!"
         s = sentenceAt p (m^.sentenceIndex)
 
-putValue :: Lens' Machine Word -> Machine -> Machine
-putValue w m = m'
+putValue :: Pointer -> Machine -> Machine
+putValue p m = m'
     where
         m' = setSentence p sentence m
         sentence = m^.value
-        p = case m^.w of
-            (P x) -> x
-            _ -> error "putValue must be called on a P word!"
 
 setSentence :: Pointer -> Sentence -> Machine -> Machine
 setSentence p s m = usePointer p m (\x -> m & sentenceIndex %~ (\i -> i V.// [(x, s)]))

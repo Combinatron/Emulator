@@ -174,10 +174,14 @@ b3 m = rotateCursorsDown . step2 . rotateCursorsDown . step1 $ m
         step2 = zeroWord c0w2 . swapWords c0w2 c1w1 . swapWords c1w1 c1w0
 
 g :: Machine -> Machine
-g m = i . getValue c0w0 $ m
+g m = case view c0w0 m of
+    (G p) -> i . getValue p $ m
+    _ -> error "getValue must be called on a G word!"
 
 p :: Machine -> Machine
-p m = i . putValue c0w0 $ m
+p m = case view c0w0 m of
+    (P p) -> i . putValue p $ m
+    _ -> error "putValue must be called on a P word!"
 
 i :: Machine -> Machine
 i m = zeroWord c0w2 . swapWords c0w1 c0w2 . swapWords c0w0 c0w1 $ m
