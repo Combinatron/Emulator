@@ -16,7 +16,6 @@ either change that, or copy what it's doing in a repl session. See also
 You can use Nix and `nix-shell` to get a working environment that can be messed
 around in. The project is also buildable with cabal.
 
-## Todo
-
-- Make easier to contribute
-- Clean up code
+The primitive ops are pretty thoroughly tested. The operations defined in
+Combinatron.hs are written to closely match the specification, so should be
+obviously correct.
