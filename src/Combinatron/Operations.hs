@@ -9,8 +9,6 @@ module Combinatron.Operations (
   copyWord,
   zeroWord,
   swapCursors,
-  rotateCursorsUp,
-  rotateCursorsDown,
   putValue,
   getValue,
   noWord, oneWord, twoWord, threeWord, oneWord', twoWord',
@@ -83,29 +81,6 @@ zeroWord w m = set w NullWord m
 -- | Swap two cursors.
 swapCursors :: Lens' Machine Cursor -> Lens' Machine Cursor -> Machine -> Machine
 swapCursors a b m = set b (m^.a) $ (set a (m^.b) m)
-
-rotateCursorsDown :: Machine -> Machine
-rotateCursorsDown m =
-    fetchCursor p topCursor .
-    swapCursors midCursor topCursor .
-    swapCursors botCursor midCursor .
-    writeCursor botCursor $ m
-    where
-        p = case m^.topCursor.cursorSentence.priWord of
-            (M p) -> p
-            NullWord -> emptyCursor^.cursorPointer
-            _ -> error "Primary word in top cursor must be M to rotate down!"
-
-rotateCursorsUp :: Machine -> Machine
-rotateCursorsUp m =
-    fetchCursor p botCursor .
-    swapCursors midCursor botCursor .
-    swapCursors topCursor midCursor .
-    writeCursor topCursor $ m
-    where
-        p = case m^.botCursor.cursorSentence.priWord of
-            (N p) -> p
-            _ -> error "Primary word in bottom cursor must be N to rotate up!"
 
 -- | Has zero words
 noWord :: Lens' Machine Cursor -> Machine -> Bool

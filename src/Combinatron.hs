@@ -112,6 +112,30 @@ isB3 = threeCursor B
 primaryWord :: Word -> Machine -> Bool
 primaryWord w m = view c0w0 m == w
 
+-- Cursor rotation
+rotateCursorsDown :: Machine -> Machine
+rotateCursorsDown m =
+    fetchCursor p topCursor .
+    swapCursors midCursor topCursor .
+    swapCursors botCursor midCursor .
+    writeCursor botCursor $ m
+    where
+        p = case view (topCursor.cursorSentence.priWord) m of
+            (M p) -> p
+            NullWord -> view cursorPointer emptyCursor
+            _ -> error "Primary word in top cursor must be M to rotate down!"
+
+rotateCursorsUp :: Machine -> Machine
+rotateCursorsUp m =
+    fetchCursor p botCursor .
+    swapCursors midCursor botCursor .
+    swapCursors topCursor midCursor .
+    writeCursor topCursor $ m
+    where
+        p = case view (botCursor.cursorSentence.priWord) m of
+            (N p) -> p
+            _ -> error "Primary word in bottom cursor must be N to rotate up!"
+
 -- Nesting/Unnesting
 nest :: Machine -> Machine
 nest m = newMWord . rotateCursorsUp $ m
