@@ -22,6 +22,7 @@ spec = do
     zeroWord
     swapCursors
     putValue
+    getValue
 
 doesNotModifySentenceIndex :: Combinatron.Machine -> (Combinatron.Machine -> Combinatron.Machine) -> Bool
 doesNotModifySentenceIndex oldMachine op = oldProgram == newProgram
@@ -339,3 +340,20 @@ putValue = do
                     oldProgram = view Combinatron.sentenceIndex m
                     numModified = numberOfModifiedSentences oldProgram newProgram
                 in (numModified == 1 && Combinatron.usePointer pointer True (\i -> oldProgram V.! i /= newProgram V.! i)) || numModified == 0
+
+getValue :: Spec
+getValue = do
+    describe "getValue" $ do
+        it "does not modify the cursors" $ property $
+            \ (MachineWithValue m) p -> doesNotModifyCursors m (Ops.getValue (makePointer (view Combinatron.sentenceIndex m) p))
+
+        it "does not modify the sentence index" $ property $
+            \ (MachineWithValue m) p -> doesNotModifySentenceIndex m (Ops.getValue (makePointer (view Combinatron.sentenceIndex m) p))
+
+        it "the value is the same as the location pointed to in the sentence index" $ property $
+            \ (MachineWithValue m) p ->
+                let newMachine = Ops.getValue pointer m
+                    pointer = makePointer oldProgram p
+                    oldProgram = view Combinatron.sentenceIndex m
+                    newV = view Combinatron.value newMachine
+                in Combinatron.usePointer pointer False (\ i -> oldProgram V.! i == newV)
