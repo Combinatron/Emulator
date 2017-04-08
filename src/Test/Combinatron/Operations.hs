@@ -23,6 +23,7 @@ spec = do
     swapCursors
     putValue
     getValue
+    conditionals
 
 doesNotModifySentenceIndex :: Combinatron.Machine -> (Combinatron.Machine -> Combinatron.Machine) -> Bool
 doesNotModifySentenceIndex oldMachine op = oldProgram == newProgram
@@ -357,3 +358,38 @@ getValue = do
                     oldProgram = view Combinatron.sentenceIndex m
                     newV = view Combinatron.value newMachine
                 in Combinatron.usePointer pointer False (\ i -> oldProgram V.! i == newV)
+
+conditionals :: Spec
+conditionals = do
+    describe "strict conditionals (noWord, oneWord, twoWord, threeWord)" $ do
+        it "only one returns true for a given cursor" $ property $
+            \ (SteppedMachine m) ->
+                let num = length . filter id . map ($ m) $ [Ops.noWord Combinatron.botCursor, Ops.oneWord Combinatron.botCursor, Ops.twoWord Combinatron.botCursor, Ops.threeWord Combinatron.botCursor]
+                in num == 1
+
+    describe "lax conditionals (noWord, oneWord', twoWord')" $ do
+        it "subsume each other, noWord or oneWord' or oneWord' and twoWord'" $ property $
+            \ (SteppedMachine m) ->
+                let no = Ops.noWord Combinatron.botCursor m
+                    one = Ops.oneWord' Combinatron.botCursor m
+                    two = Ops.twoWord' Combinatron.botCursor m
+                in no || one || (one && two)
+
+    describe "strict and lax conditionals" $ do
+        it "oneWord' is at least one word" $ property $
+            \ (SteppedMachine m) ->
+                let no = Ops.noWord Combinatron.botCursor m
+                    one' = Ops.oneWord' Combinatron.botCursor m
+                    one = Ops.oneWord Combinatron.botCursor m
+                    two = Ops.twoWord Combinatron.botCursor m
+                    three = Ops.threeWord Combinatron.botCursor m
+                in no || one && one' || two && one' || three && one'
+
+        it "twoWord' is at least two words" $ property $
+            \ (SteppedMachine m) ->
+                let no = Ops.noWord Combinatron.botCursor m
+                    one = Ops.oneWord Combinatron.botCursor m
+                    two = Ops.twoWord Combinatron.botCursor m
+                    two' = Ops.twoWord' Combinatron.botCursor m
+                    three = Ops.threeWord Combinatron.botCursor m
+                in no || one && (not two') || two && two' || three && two'
