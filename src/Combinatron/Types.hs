@@ -26,7 +26,7 @@ import Data.Maybe (fromMaybe)
 newtype Pointer = Pointer Int
     deriving (Show, Eq)
 
--- | Pointers must be 0, so only this constructor is exported from the module.
+-- | Pointers must be greater than 0, so only this constructor is exported from the module.
 newPointer :: Int -> Pointer
 newPointer p
     | p > 0 = Pointer p
