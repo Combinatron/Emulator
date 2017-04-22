@@ -9,5 +9,5 @@ let haskellPackages = nixpkgs.pkgs.haskell.packages.${compiler};
     packageOverrides = rec {};
 in
 callPackage ./Combinatron-Emulator.nix ({
-  buildTools = [ nixpkgs.pkgs.haskellPackages.cabal-install ];
+  buildTools = [ nixpkgs.pkgs.haskellPackages.cabal-install nixpkgs.pkgs.haskellPackages.happy nixpkgs.pkgs.haskellPackages.alex];
 } // packageOverrides)
