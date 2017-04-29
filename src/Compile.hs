@@ -2,10 +2,14 @@ module Main where
 
 import System.Environment (getArgs)
 import Combinatron.Compiler
+import Combinatron.Assembler
+import qualified Data.Vector as V
+import qualified Data.ByteString.Lazy as B
 
 main :: IO ()
 main = do
-    arg <- head <$> getArgs
-    s <- readFile arg
+    (input:output:[]) <- getArgs
+    s <- readFile input
     let compiled = compile s
-    print compiled
+        assembled = assembleFile (V.fromList compiled)
+    B.writeFile output assembled
