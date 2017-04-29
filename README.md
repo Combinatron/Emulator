@@ -12,7 +12,7 @@ You can write your own programs if you'd like to experiment with programming in
 my modified BCKW calculus. The language is pretty simple.
 
 * Case-insensitive
-* Whitespace-insensitive (so long as primitives are separated by whitespace).
+* Whitespace-insensitive
 * Parentheses are used for grouping
 * Simple primitives are just `b` `c` `k` `w`.
 * Side effecting primitives include the index of the sentence they operate on,
