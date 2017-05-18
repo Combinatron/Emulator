@@ -46,6 +46,7 @@ opCode (G _) = 5
 opCode (P _) = 6
 opCode (N _) = 7
 opCode (M _) = 8
+opCode Y = 9
 
 opPointer :: Word -> Word16
 opPointer (N (Pointer p)) = fromIntegral p

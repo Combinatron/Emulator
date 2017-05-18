@@ -42,6 +42,7 @@ step m
     | isB3 m = Right $ b3 m
     | isP m = Right $ p m
     | isG m = Right $ g m
+    | isY m = Right $ y m
     | otherwise = Left m
 
 -- | Predicates
@@ -61,8 +62,14 @@ isG = view (c0w0.to Types.isG)
 isP :: Machine -> Bool
 isP = view (c0w0.to Types.isP)
 
+isY :: Machine -> Bool
+isY = oneCursorSingleArg Y
+
 havingPropertiesAndWord :: [Machine -> Bool] -> Word -> Machine ->  Bool
 havingPropertiesAndWord preds w m = all ($ m) ((primaryWord w):preds)
+
+oneCursorSingleArg :: Word -> Machine -> Bool
+oneCursorSingleArg w = havingPropertiesAndWord [twoWord' botCursor] w
 
 oneCursor :: Word -> Machine -> Bool
 oneCursor w = havingPropertiesAndWord [threeWord botCursor] w
@@ -206,6 +213,9 @@ p :: Machine -> Machine
 p m = case view c0w0 m of
     (P p) -> i . putValue p $ m
     _ -> error "putValue must be called on a P word!"
+
+y :: Machine -> Machine
+y m = swapWords c0w0 c0w1 . swapWords c0w0 c1w0 . newNWord . swapWords c0w0 c1w0 $ m
 
 i :: Machine -> Machine
 i m = zeroWord c0w2 . swapWords c0w1 c0w2 . swapWords c0w0 c0w1 $ m

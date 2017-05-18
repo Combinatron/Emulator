@@ -22,7 +22,7 @@ usePointer :: Pointer -> a -> (Int -> a) -> a
 usePointer (Pointer 0) x _ = x
 usePointer (Pointer x) _ f = f (pred x)
 
-data Word = B | C | K | W | N Pointer | M Pointer | G Pointer | P Pointer | NullWord
+data Word = B | C | K | W | Y | N Pointer | M Pointer | G Pointer | P Pointer | NullWord
     deriving (Show, Eq)
 
 data Cursor = Cursor { _cursorPointer :: Pointer, _cursorSentence ::  Sentence }
