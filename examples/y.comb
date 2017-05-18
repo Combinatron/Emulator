@@ -1,1 +1,5 @@
+~ This should result in a single K
+~ Y (K K) -> (K K) (Y (K K))
+~ (K K) (Y (K K)) -> K K (Y (K K))
+~ K K (Y (K K)) -> K
 Y (K K)
