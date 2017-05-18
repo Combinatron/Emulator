@@ -12,6 +12,7 @@ import Data.Char (toLower)
 $digit = 0-9
 $basic = [bckwy BCKWY]
 $sides = [gp GP]
+$comment = \~
 $eol = [\n]
 
 tokens :-
@@ -19,6 +20,7 @@ tokens :-
     $white+     ;
     $basic  { \ (s:[]) -> Basic (toLower s) }
     $sides$digit+ { \ (c:d) -> Side (toLower c) (read d) }
+    $comment$printable+ ;
     \(  { \ _ -> LParen }
     \)  { \ _ -> RParen }
 
