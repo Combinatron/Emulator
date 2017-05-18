@@ -14,7 +14,8 @@ my modified BCKW calculus. The language is pretty simple.
 * Case-insensitive
 * Whitespace-insensitive
 * Parentheses are used for grouping
-* Simple primitives are just `b` `c` `k` `w`.
+* Simple primitives are just `b` `c` `k` `w` `y`.
+* Comments are indicated by a `~`, anything on the line after the `~` is ignored.
 * Side effecting primitives include the index of the sentence they operate on,
   1-based, not separated by a space e.g. `g1`, `p3`.
 
