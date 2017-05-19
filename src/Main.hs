@@ -1,6 +1,6 @@
 module Main where
 
-import Combinatron (run)
+import Combinatron (run, runDebug)
 import Combinatron.Types (initialize, printMachine)
 import Combinatron.Loader
 import qualified Data.ByteString.Lazy as B
@@ -16,6 +16,11 @@ commandLine =
                 "run"
                 "Run a program and print the final state"
                 (\ s -> (run, s))
+                (argument str (metavar "FILE"))
+            addCommand
+                "debug"
+                "Run a program and print each consecutive state"
+                (\ s -> (runDebug, s))
                 (argument str (metavar "FILE"))
 
 main = do
