@@ -33,17 +33,22 @@ cabal run Combinatron-Compiler -- input_file_name output_file_name
 You then run the output file like so:
 
 ```bash
-cabal run Combinatron-Emulator -- output_file_name
+cabal run Combinatron-Emulator -- run output_file_name
 ```
 
 This will run the program and print the final machine state to standard output.
 
-## Debugging (TODO: Make a dedicated debugger)
+Print intermediate states with:
 
-Debugging a written program is slightly more involved right now. For now you can
-just change the invocation of `run` in `src/Main.hs` to `runDebug`. Run the
-program as before and now each intermediate state will be printed to standard
-output.
+```bash
+cabal run Combinatron-Emulator -- debug output_file_name
+```
+
+Get help with:
+
+```bash
+cabal run Combinatron-Emulator -- --help
+```
 
 ## Contributing
 
