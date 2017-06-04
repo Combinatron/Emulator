@@ -1,7 +1,8 @@
 # Emulator
 
 A software implementation of the BCKW reducer machine defined at
-[Combinatron/Specification](https://github.com/Combinatron/Specification).
+[Combinatron/Specification](https://github.com/Combinatron/Specification). This
+implementation may be ahead of the formal specification in some areas.
 
 This is currently only a working prototype and may have bugs. It should be good
 enough to play around with though.
@@ -52,6 +53,20 @@ Get help with:
 cabal run Combinatron-Emulator -- --help
 ```
 
+## Compiler
+
+The compiler is at this point naive, simple, and, frankly, bad. My focus right
+now is not on making the compiler good, but instead on wrestling the programming
+strategies required for programming on an architecture like this. There is one
+point to mention though. Usage of a named expression inlines it directly at the
+usage site. This is subject to change, as it is a relatively straightforward
+matter to replace usages with a pointer to the named expression instead, and
+such a strategy would reduce duplication of work during execution. This would
+normally cause no problems unless you use some of the side effecting combinators
+in a named expression. At this time, those combinators would be executed once
+for each usage of the named expression. In the future that will not necessarily
+hold.
+
 ## Contributing
 
 You can use Nix and `nix-shell` to get a working environment that can be messed
@@ -60,3 +75,16 @@ around in. The project is also buildable with cabal.
 The primitive ops are pretty thoroughly tested. The operations defined in
 Combinatron.hs are written to closely match the specification, so should be
 obviously correct.
+
+There are a number of things I am specifically looking for help with. Talk to me
+if you're interested in any of these.
+
+* A higher-level language that compiles to the basic combinators.
+* Exploration of the possible programming strategies and paradigms for this
+  architecture.
+* Exploration of the different strategies for distributing work across multiple
+  Combinatron processors. I have a number of ideas for this. Talk to me if
+  you're interested.
+* Exploration of how to wrangle hardware level details like interacting with
+  peripherals.
+* Strategies for hardware assisted garbage collection.
