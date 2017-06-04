@@ -2,4 +2,9 @@
 ~ Y (K K) -> (K K) (Y (K K))
 ~ (K K) (Y (K K)) -> K K (Y (K K))
 ~ K K (Y (K K)) -> K
-Y (K K)
+
+my y:= Y (K K) ;
+my x:= :my y: W ;
+
+:my y: c (:my x: b)
+~ (Y (K K)) c ((Y (K K) w) b)

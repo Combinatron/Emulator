@@ -13,16 +13,24 @@ $digit = 0-9
 $basic = [bckwy BCKWY]
 $sides = [gp GP]
 $comment = \~
-$eol = [\n]
+$eol = [\n\r]
+$nbwhite = $white # $eol
+$assignment = \=
+$identifier = \:
+$assignend = \;
+$identifiable = $printable # $identifier
 
 tokens :-
-    $eol        ;
-    $white+     ;
+    $eol+         ;
+    $nbwhite+     ;
     $basic  { \ (s:[]) -> Basic (toLower s) }
     $sides$digit+ { \ (c:d) -> Side (toLower c) (read d) }
-    $comment$printable+ ;
+    $comment$printable+$eol ;
     \(  { \ _ -> LParen }
     \)  { \ _ -> RParen }
+    $identifier$identifiable+$identifier { \ (_:s) -> Ident (init s) }
+    $identifiable+$identifier$assignment { \ s -> Assign (init (init s))}
+    $assignend { \ _ -> AssignEnd }
 
 {
 data Token
@@ -30,6 +38,9 @@ data Token
     | Side Char Int
     | LParen
     | RParen
+    | Ident String
+    | Assign String
+    | AssignEnd
     deriving (Show)
 
 lexer :: String -> [Token]

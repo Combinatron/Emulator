@@ -27,7 +27,8 @@ executable Combinatron-Emulator
                        binary,
                        bytestring,
                        array,
-                       optparse-simple
+                       optparse-simple,
+                       containers
   hs-source-dirs:      src
   default-language:    Haskell2010
   ghc-options: -W -Werror
@@ -45,11 +46,12 @@ Test-Suite test
                        hspec,
                        binary-strict,
                        binary,
-                       bytestring
+                       bytestring,
+                       containers
 
 executable Combinatron-Compiler
   main-is:           Compile.hs
-  build-depends:     base, array, vector, lens, bytestring, binary, binary-strict
+  build-depends:     base, array, vector, lens, bytestring, binary, binary-strict, containers
   build-tools:       alex, happy
   hs-source-dirs:      src
   default-language:    Haskell2010

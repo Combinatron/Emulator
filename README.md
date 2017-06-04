@@ -18,6 +18,8 @@ my modified BCKW calculus. The language is pretty simple.
 * Comments are indicated by a `~`, anything on the line after the `~` is ignored.
 * Side effecting primitives include the index of the sentence they operate on,
   1-based, not separated by a space e.g. `g1`, `p3`.
+* Expressions can be assigned names like so `expr:= b c k w`. Named expressions
+  can be used in other expressions by enclosing it in colons like so: `b c :expr:`
 
 Check out the examples directory for example programs.
 
