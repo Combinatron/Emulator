@@ -4,7 +4,7 @@ module Combinatron.Assembler (
 
 import Prelude hiding (Word)
 import Combinatron.Types (Word(..), SentenceIndex, Sentence(..))
-import Combinatron.Types.Internal (Pointer(..))
+import Combinatron.Types.Memory (Pointer(..))
 import qualified Data.Binary.Put as P
 import qualified Data.Binary.BitPut as BP
 import qualified Data.ByteString.Char8 as BC

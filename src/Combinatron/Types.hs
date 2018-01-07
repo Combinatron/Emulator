@@ -16,4 +16,8 @@ module Combinatron.Types (
 ) where
 
 import Prelude hiding (Word)
-import Combinatron.Types.Internal
+import Combinatron.Types.Printer
+import Combinatron.Types.Machine
+import Combinatron.Types.Memory
+import Combinatron.Types.Instructions
+import Combinatron.Types.Evaluator
