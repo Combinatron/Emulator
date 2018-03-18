@@ -10,7 +10,7 @@ import Data.Char (toLower)
 %wrapper "basic"
 
 $digit = 0-9
-$basic = [bckwy BCKWY]
+$basic = [bckwyi BCKWYI]
 $sides = [gp GP]
 $comment = \~
 $eol = [\n\r]

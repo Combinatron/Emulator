@@ -143,6 +143,7 @@ treeToWord (TBasic 'c' _) = C
 treeToWord (TBasic 'k' _) = K
 treeToWord (TBasic 'w' _) = W
 treeToWord (TBasic 'y' _) = Y
+treeToWord (TBasic 'i' _) = I
 treeToWord (TSide 'g' i _) = g i
 treeToWord (TSide 'p' i _) = p i
 treeToWord (TNest _ _ _) = error "Cannot convert nest directly! This is a bug!"

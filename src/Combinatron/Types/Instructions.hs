@@ -4,7 +4,7 @@ module Combinatron.Types.Instructions where
 import Prelude hiding (Word)
 import {-# SOURCE #-} Combinatron.Types.Memory (Pointer, newPointer)
 
-data Word = B | C | K | W | Y | N Pointer | M Pointer | G Pointer | P Pointer | NullWord
+data Word = B | C | K | W | I | Y | N Pointer | M Pointer | G Pointer | P Pointer | NullWord
     deriving (Show, Eq)
 
 -- | This is a little helper for making it easier to construct N words.

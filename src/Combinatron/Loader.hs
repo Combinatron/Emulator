@@ -32,6 +32,7 @@ loadOp 6 = p . fromIntegral
 loadOp 7 = n . fromIntegral
 loadOp 8 = m . fromIntegral
 loadOp 9 = const Y
+loadOp 10 = const I
 loadOp _ = fail "unrecognized opcode"
 
 loadWord :: BG.BitGet Word

@@ -43,6 +43,7 @@ step m
     | isP m = Right $ p m
     | isG m = Right $ g m
     | isY m = Right $ y m
+    | isI m = Right $ i m
     | otherwise = Left m
 
 -- | Predicates
@@ -115,6 +116,9 @@ isB2 = twoCursorThreeArgMid B
 
 isB3 :: Machine -> Bool
 isB3 = threeCursor B
+
+isI :: Machine -> Bool
+isI = oneCursorSingleArg I
 
 primaryWord :: Word -> Machine -> Bool
 primaryWord w m = view c0w0 m == w
