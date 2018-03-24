@@ -12,7 +12,9 @@ module Combinatron.Types (
     -- lenses
     topCursor, midCursor, botCursor, sentenceIndex, value,
     priWord, secWord, triWord,
-    cursorPointer, cursorSentence
+    cursorPointer, cursorSentence,
+    -- Machine Manipulation
+    setSentenceMachine
 ) where
 
 import Prelude hiding (Word)

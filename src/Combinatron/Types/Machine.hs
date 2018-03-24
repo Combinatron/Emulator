@@ -4,6 +4,7 @@ module Combinatron.Types.Machine where
 import Control.Lens
 import Combinatron.Types.Memory
 import Combinatron.Types.Evaluator
+import qualified Data.Vector as V
 
 data Machine = Machine
     { _topCursor :: Cursor
@@ -26,3 +27,9 @@ initialize index = Machine
     , _sentenceIndex = index
     , _value = emptySentence
     }
+
+setSentenceMachine :: Pointer -> Sentence -> Machine -> Machine
+setSentenceMachine p s m = m & sentenceIndex %~ (setSentence p s)
+
+setSentence :: Pointer -> Sentence -> SentenceIndex -> SentenceIndex
+setSentence p s si = usePointer p si (\i -> si V.// [(i, s)])
