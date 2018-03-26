@@ -20,7 +20,8 @@ compile = primsToSentenceIndex . uncurry collapsePrims . gatherIdentifiers . par
 gatherIdentifiers :: [Meta] -> (Map Identifier [P.Prim], [P.Prim])
 gatherIdentifiers ms = (foldr folder (M.empty) ms, foldr folder2 [] ms)
    where
-        folder (Assignment i ps) m = M.insert i ps m
+        -- TODO: The map only ever has PrimNest's in it now.
+        folder (Assignment i ps) m = M.insert i [(P.PrimNest ps)] m
         folder _ m = m
 
         folder2 (Assignment _ _) rest = rest
@@ -44,7 +45,7 @@ expandIdentifier idents (p:rest) = (p2p p):expandIdentifier idents rest
 -- like "If currently replacing identifier X, and I need a lookup for X, fail"
 replaceIdentifiers :: Map Identifier [Prim] -> [P.Prim] -> [Prim]
 replaceIdentifiers _ [] = []
-replaceIdentifiers idents ((P.PrimIdent i):rest) = (PrimNest (fromJust (M.lookup i idents))):replaceIdentifiers idents rest
+replaceIdentifiers idents ((P.PrimIdent i):rest) = (fromJust (M.lookup i idents)) ++ replaceIdentifiers idents rest
 replaceIdentifiers idents ((P.PrimNest ps):rest) = (PrimNest (replaceIdentifiers idents ps)):replaceIdentifiers idents rest
 replaceIdentifiers idents (p:rest) = (p2p p):replaceIdentifiers idents rest
 
