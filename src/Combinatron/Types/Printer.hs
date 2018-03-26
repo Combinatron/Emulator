@@ -39,8 +39,50 @@ instance PrettyPrinter Machine where
         , "- mid: " ++ prettyPrint (machine^.midCursor)
         , "- bot: " ++ prettyPrint (machine^.botCursor)
         , "Index: " ++ prettyPrint (machine^.sentenceIndex)
+        , "Combinators: " ++ printCombinators machine
         , "Value: " ++ prettyPrint (machine^.value)
         ]
+
+-- Assumes 0 is always the root
+-- No sharing of sentences
+printCombinators :: Machine -> String
+printCombinators m = lw
+    where
+        pc = m^.botCursor.cursorPointer
+        pc' = m^.midCursor.cursorPointer
+        rw = "#" ++ usePointer pc "null pointer" (\ x -> rightward x absorbed)
+        lw = usePointer pc' rw (\ x -> leftward x rw absorbed)
+        absorbed = absorbCursors (m^.sentenceIndex) [m^.topCursor, m^.midCursor, m^.botCursor]
+
+absorbCursors :: SentenceIndex -> [Cursor] -> SentenceIndex
+absorbCursors = foldl (\ si c -> setSentence (c^.cursorPointer) (c^.cursorSentence) si)
+
+leftward :: Int -> String -> SentenceIndex -> String
+leftward i s si =
+    case si V.! i of
+        (Sentence (M p) w2 w3) -> ascender p ("(" ++ s ++ ") " ++ words [w2, w3])
+        _ -> error "Can not go leftwards without M word"
+    where
+        doPrint NullWord = ""
+        doPrint (N p) = "(" ++ descender p si ++ ")"
+        doPrint (M _) = error "Should not have M word in non-primary position"
+        doPrint w = prettyPrint w
+        words = foldl (++) "" . intersperse " " . filter (not . null) . map doPrint
+        ascender p s = usePointer p s (\ x -> leftward x s si)
+
+rightward :: Int -> SentenceIndex -> String
+rightward i si =
+    case si V.! i of
+        (Sentence (M _) _ _) -> error "Can not go rightward into M word"
+        (Sentence w1 w2 w3) -> words $ [w1, w2, w3]
+    where
+        doPrint NullWord = ""
+        doPrint (N p) = "(" ++ descender p si ++ ")"
+        doPrint (M _) = error "Should not have M word in non-primary position"
+        doPrint w = prettyPrint w
+        words = foldl (++) "" . intersperse " " . filter (not . null) . map doPrint
+
+descender p si = usePointer p "0" (\ x -> rightward x si)
 
 printMachine :: Machine -> IO Machine
 printMachine m = do
