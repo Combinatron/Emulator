@@ -1,0 +1,26 @@
+~ true x y = x
+true:= k ;
+~ false x y = y
+false:= c k ;
+
+~ not true = false
+~ not false = true
+~ not p x y = p y x
+not:= c ;
+
+~ if pred then else = pred then else
+if:= i ;
+
+~ one x = x
+~ two x = x x
+once:= i ;
+twice:= w i ;
+
+~ plus x y z = (x z) (y z)
+plus:= B (B W) (B B C) ;
+~ three x = x x x
+thrice:= :plus: :once: :twice: ;
+
+~ :if: :thrice: :not: :false: k c
+~ TOOD: This doesn't work, diverges
+:if: :plus: :twice: :twice: :not: :false: k c
