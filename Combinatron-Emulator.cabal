@@ -28,7 +28,8 @@ executable Combinatron-Emulator
                        bytestring,
                        array,
                        optparse-simple,
-                       containers
+                       containers,
+                       socket
   hs-source-dirs:      src
   default-language:    Haskell2010
   ghc-options: -W -Werror
