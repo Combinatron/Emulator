@@ -28,8 +28,11 @@ instance PrettyPrinter Sentence where
 instance PrettyPrinter Cursor where
     prettyPrint (Cursor (Pointer p) s) = "{" ++ show p ++ " " ++ prettyPrint s ++ "}"
 
+printVector :: (PrettyPrinter a) => V.Vector a -> String
+printVector = foldr (++) "" . intersperse ", " . map prettyPrint . V.toList
+
 instance PrettyPrinter SentenceIndex where
-    prettyPrint index = foldr (++) "" . intersperse ", " . map prettyPrint $ (V.toList index)
+    prettyPrint = printVector
 
 instance PrettyPrinter Machine where
     prettyPrint machine = foldr (++) "" . intersperse "\n" $
