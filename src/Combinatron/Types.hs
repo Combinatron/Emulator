@@ -4,7 +4,7 @@ module Combinatron.Types (
     Cursor(..),
     Sentence(..),
     SentenceIndex,
-    Machine(..),
+    Machine(..), nodeRootSize,
     prettyPrint,
     printMachine,
     n, m, g, p, s, program, emptyCursor, emptySentence, isN, isM, isP, isG, isNotNull, isNull,
@@ -13,6 +13,7 @@ module Combinatron.Types (
     topCursor, midCursor, botCursor, sentenceIndex, value,
     priWord, secWord, triWord,
     cursorPointer, cursorSentence,
+    nodeRoots,
     -- Machine Manipulation
     setSentenceMachine
 ) where

@@ -6,6 +6,10 @@ import Combinatron.Operations
 import Combinatron.Types hiding (isP, isG, p, g)
 import qualified Combinatron.Types as Types
 import Control.Lens (view, to)
+import qualified Data.Vector as V
+
+isRootsFull :: Machine -> Bool
+isRootsFull = view (nodeRoots.to ((nodeRootSize ==) . V.length))
 
 isNest :: Machine -> Bool
 isNest = view (c0w0.to isN)

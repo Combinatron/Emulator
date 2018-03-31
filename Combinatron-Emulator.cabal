@@ -29,7 +29,8 @@ executable Combinatron-Emulator
                        array,
                        optparse-simple,
                        containers,
-                       socket
+                       socket,
+                       random
   hs-source-dirs:      src
   default-language:    Haskell2010
   ghc-options: -W -Werror
@@ -48,7 +49,8 @@ Test-Suite test
                        binary-strict,
                        binary,
                        bytestring,
-                       containers
+                       containers,
+                       random
 
 executable Combinatron-Compiler
   main-is:           Compile.hs

@@ -11,9 +11,12 @@ data Machine = Machine
     , _midCursor :: Cursor
     , _botCursor :: Cursor
     , _sentenceIndex :: SentenceIndex
+    , _nodeRoots :: TaskQueue
     , _value :: Sentence
     }
     deriving (Show)
+
+type TaskQueue = V.Vector Pointer
 
 -- | Lenses
 makeLenses ''Machine
@@ -25,6 +28,7 @@ initialize index = Machine
     , _midCursor = emptyCursor
     , _botCursor = cursorAt (newPointer 1) index
     , _sentenceIndex = index
+    , _nodeRoots = V.fromList [newPointer 1]
     , _value = emptySentence
     }
 
@@ -33,3 +37,6 @@ setSentenceMachine p s m = m & sentenceIndex %~ (setSentence p s)
 
 setSentence :: Pointer -> Sentence -> SentenceIndex -> SentenceIndex
 setSentence p s si = usePointer p si (\i -> si V.// [(i, s)])
+
+nodeRootSize :: Int
+nodeRootSize = 5

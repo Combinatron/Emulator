@@ -12,7 +12,8 @@ module Combinatron.Operations (
   putValue,
   getValue,
   noWord, oneWord, twoWord, threeWord, oneWord', twoWord',
-  c0w0, c0w1, c0w2, c1w0, c1w1, c1w2, c2w0, c2w1, c2w2
+  c0w0, c0w1, c0w2, c1w0, c1w1, c1w2, c2w0, c2w1, c2w2,
+  addRoot
 ) where
 -- | A library of primitive operations to modify Machine state.
 
@@ -133,3 +134,9 @@ c2w1 :: Lens' Machine Word
 c2w1 = topCursor.word1
 c2w2 :: Lens' Machine Word
 c2w2 = topCursor.word2
+
+-- | Node roots
+
+-- | add a root to task queue at the end
+addRoot :: Pointer -> Machine -> Machine
+addRoot p = over nodeRoots (flip snoc p)

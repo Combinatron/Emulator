@@ -34,6 +34,12 @@ printVector = foldr (++) "" . intersperse ", " . map prettyPrint . V.toList
 instance PrettyPrinter SentenceIndex where
     prettyPrint = printVector
 
+instance PrettyPrinter TaskQueue where
+    prettyPrint = printVector
+
+instance PrettyPrinter Pointer where
+    prettyPrint (Pointer p) = "Pointer " ++ show p
+
 instance PrettyPrinter Machine where
     prettyPrint machine = foldr (++) "" . intersperse "\n" $
         [ "Machine"
@@ -42,6 +48,7 @@ instance PrettyPrinter Machine where
         , "- mid: " ++ prettyPrint (machine^.midCursor)
         , "- bot: " ++ prettyPrint (machine^.botCursor)
         , "Index: " ++ prettyPrint (machine^.sentenceIndex)
+        , "Task Queue: " ++ prettyPrint (machine^.nodeRoots)
         , "Combinators: " ++ printCombinators machine
         , "Value: " ++ prettyPrint (machine^.value)
         ]

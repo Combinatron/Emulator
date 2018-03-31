@@ -7,12 +7,13 @@ module Combinatron (
 import Combinatron.Types (printMachine)
 import System.IO.Unsafe (unsafePerformIO)
 import Combinatron.Reducer
+import Combinatron.Sparker
 
-run m = case step m of
+run m = case (step . sparkRandom $ m) of
     (Right m) -> run m
     (Left m) -> m
 
-runDebug m = case step (unsafePerformIO (printMachine m)) of
+runDebug m = case (step . sparkRandom . unsafePerformIO . printMachine $ m) of
     (Right m) -> runDebug m
     (Left m) -> m
 
