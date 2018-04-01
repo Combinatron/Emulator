@@ -4,7 +4,8 @@ module Combinatron.Assembler (
 
 import Prelude hiding (Word)
 import Combinatron.Types (Word(..), SentenceIndex, Sentence(..))
-import Combinatron.Types.Memory (Pointer(..), indexPower)
+import Combinatron.Types.Memory (Pointer(..))
+import Combinatron.Types.Instructions (wordArgSize)
 import qualified Data.Binary.Put as P
 import qualified Data.Binary.BitPut as BP
 import qualified Data.ByteString.Char8 as BC
@@ -22,19 +23,19 @@ assembleFile s = P.runPut (assembleProgram s)
 assembleProgram :: SentenceIndex -> P.Put
 assembleProgram s = do
     assembleHeader (fromIntegral $ V.length s)
-    forM_ s assembleSentence
+    P.putLazyByteString $
+        BP.runBitPut $ forM_ s assembleSentence
 
-assembleSentence :: Sentence -> P.Put
+assembleSentence :: Sentence -> BP.BitPut
 assembleSentence s = do
     assembleOp (_priWord s)
     assembleOp (_secWord s)
     assembleOp (_triWord s)
 
-assembleOp :: Word -> P.Put
-assembleOp w = P.putLazyByteString $
-    BP.runBitPut $ do
-        BP.putNBits 4 $ opCode w
-        BP.putNBits indexPower $ opPointer w
+assembleOp :: Word -> BP.BitPut
+assembleOp w = do
+    BP.putNBits 4 $ opCode w
+    BP.putNBits (wordArgSize w) $ opPointer w
 
 opCode :: Word -> Word8
 opCode NullWord = 0

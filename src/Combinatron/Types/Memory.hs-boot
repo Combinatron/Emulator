@@ -5,3 +5,5 @@ instance Show Pointer
 instance Eq Pointer
 
 newPointer :: Int -> Pointer
+
+indexPower :: Int

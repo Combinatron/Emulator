@@ -4,7 +4,7 @@ module Combinatron.Loader (
 
 import Prelude hiding (Word)
 import Combinatron.Types (Word(..), SentenceIndex, program, g, p, n, m)
-import Combinatron.Types.Memory (indexPower)
+import Combinatron.Types.Instructions (wordArgSize)
 import qualified Data.Binary.Get as G
 import qualified Data.Binary.Strict.BitGet as BG
 import qualified Data.ByteString.Char8 as BC
@@ -36,27 +36,35 @@ loadOp 9 = const Y
 loadOp 10 = const I
 loadOp _ = fail "unrecognized opcode"
 
+dummy = 1
+
 loadWord :: BG.BitGet Word
 loadWord = do
     opCode <- BG.getAsWord8 4
-    pointer <- BG.getAsWord16 indexPower
+    let wOp = loadOp opCode dummy
+    pointer <- BG.getAsWord16 (wordArgSize wOp)
     return $ loadOp opCode pointer
 
-loadSentence :: G.Get (Word, Word, Word)
+loadSentence :: BG.BitGet (Word, Word, Word)
 loadSentence = do
-    sbs <- G.getByteString 6
-    let s = BG.runBitGet sbs $ do
-            pri <- loadWord
-            sec <- loadWord
-            tri <- loadWord
-            return $ (pri, sec, tri)
-    either fail return s
+    pri <- loadWord
+    sec <- loadWord
+    tri <- loadWord
+    return $ (pri, sec, tri)
 
-loadSentenceIndex :: G.Get SentenceIndex
-loadSentenceIndex = do
-    (Header n) <- loadHeader
+loadSentenceIndex :: Word16 -> B.ByteString -> Either String SentenceIndex
+loadSentenceIndex n s = BG.runBitGet (B.toStrict s) $ do
     sentences <- replicateM (fromIntegral n) loadSentence
     return $ program sentences
 
 loadFile :: B.ByteString -> SentenceIndex
-loadFile = G.runGet loadSentenceIndex
+loadFile bs = si
+    where
+        (rest, _, (Header n)) =
+            case G.runGetOrFail loadHeader bs of
+                Right x -> x
+                Left (_, _, s) -> error s
+        si =
+            case loadSentenceIndex n rest of
+                Right x -> x
+                Left s -> error s
