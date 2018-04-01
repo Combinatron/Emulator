@@ -12,7 +12,7 @@ import Control.Lens (Lens', set)
 -- QuickCheck Instances
 instance Arbitrary Word where
     arbitrary = do
-        i <- resize 7 (arbitrarySizedNatural :: Gen Int)
+        i <- resize 8 (arbitrarySizedNatural :: Gen Int)
         case i of
             0 -> return B
             1 -> return C
@@ -24,7 +24,8 @@ instance Arbitrary Word where
             5 -> n . succ <$> arbitrarySizedNatural
             6 -> g . succ <$> arbitrarySizedNatural
             7 -> p . succ <$> arbitrarySizedNatural
-            _ -> error "Generated index higher than 7! This should not happen!"
+            8 -> return I
+            _ -> error "Generated index higher than 8! This should not happen!"
 
 instance Arbitrary Sentence where
     arbitrary = do
