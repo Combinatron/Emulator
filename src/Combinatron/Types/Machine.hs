@@ -37,6 +37,3 @@ setSentenceMachine p s m = m & sentenceIndex %~ (setSentence p s)
 
 setSentence :: Pointer -> Sentence -> SentenceIndex -> SentenceIndex
 setSentence p s si = usePointer p si (\i -> si V.// [(i, s)])
-
-nodeRootSize :: Int
-nodeRootSize = 5

@@ -6,19 +6,13 @@ import qualified Data.Vector as V
 import Control.Lens
 import Data.Maybe (fromMaybe)
 import Combinatron.Types.Instructions (Word(NullWord))
+import Combinatron.Types.Parameters (indexSize)
 
 -- | A Pointer is just a wrapper around an Int. It only exposes printing and equality functionality.
 newtype Pointer = Pointer Int
     deriving (Show, Eq)
 
 nullPointer = Pointer 0
-
--- | Number of sentences in index
-indexPower :: Int
-indexPower = 12
-
-indexSize :: Int
-indexSize = 2^indexPower
 
 -- | Non-null pointers must be greater than 0, so only this constructor is exported from the module.
 newPointer :: Int -> Pointer

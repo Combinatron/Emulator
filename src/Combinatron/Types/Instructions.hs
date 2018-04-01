@@ -2,7 +2,8 @@
 module Combinatron.Types.Instructions where
 
 import Prelude hiding (Word)
-import {-# SOURCE #-} Combinatron.Types.Memory (Pointer, newPointer, indexPower)
+import {-# SOURCE #-} Combinatron.Types.Memory (Pointer, newPointer)
+import Combinatron.Types.Parameters (indexPower)
 
 data Word = B | C | K | W | I | Y | N Pointer | M Pointer | G Pointer | P Pointer | NullWord
     deriving (Show, Eq)

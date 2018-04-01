@@ -4,6 +4,7 @@ module Combinatron.Predicates where
 import Prelude hiding (Word)
 import Combinatron.Operations
 import Combinatron.Types hiding (isP, isG, p, g)
+import Combinatron.Types.Parameters (nodeRootSize)
 import qualified Combinatron.Types as Types
 import Control.Lens (view, to)
 import qualified Data.Vector as V
