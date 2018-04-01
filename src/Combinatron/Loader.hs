@@ -4,6 +4,7 @@ module Combinatron.Loader (
 
 import Prelude hiding (Word)
 import Combinatron.Types (Word(..), SentenceIndex, program, g, p, n, m)
+import Combinatron.Types.Memory (indexPower)
 import qualified Data.Binary.Get as G
 import qualified Data.Binary.Strict.BitGet as BG
 import qualified Data.ByteString.Char8 as BC
@@ -38,7 +39,7 @@ loadOp _ = fail "unrecognized opcode"
 loadWord :: BG.BitGet Word
 loadWord = do
     opCode <- BG.getAsWord8 4
-    pointer <- BG.getAsWord16 12
+    pointer <- BG.getAsWord16 indexPower
     return $ loadOp opCode pointer
 
 loadSentence :: G.Get (Word, Word, Word)

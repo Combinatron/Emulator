@@ -4,7 +4,7 @@ module Combinatron.Assembler (
 
 import Prelude hiding (Word)
 import Combinatron.Types (Word(..), SentenceIndex, Sentence(..))
-import Combinatron.Types.Memory (Pointer(..))
+import Combinatron.Types.Memory (Pointer(..), indexPower)
 import qualified Data.Binary.Put as P
 import qualified Data.Binary.BitPut as BP
 import qualified Data.ByteString.Char8 as BC
@@ -34,7 +34,7 @@ assembleOp :: Word -> P.Put
 assembleOp w = P.putLazyByteString $
     BP.runBitPut $ do
         BP.putNBits 4 $ opCode w
-        BP.putNBits 12 $ opPointer w
+        BP.putNBits indexPower $ opPointer w
 
 opCode :: Word -> Word8
 opCode NullWord = 0

@@ -13,11 +13,18 @@ newtype Pointer = Pointer Int
 
 nullPointer = Pointer 0
 
+-- | Number of sentences in index
+indexPower :: Int
+indexPower = 12
+
+indexSize :: Int
+indexSize = 2^indexPower
+
 -- | Non-null pointers must be greater than 0, so only this constructor is exported from the module.
 newPointer :: Int -> Pointer
 newPointer p
-    | p > 0 = Pointer p
-    | otherwise = error "Pointers must be greater than 0!"
+    | p > 0 && p < indexSize = Pointer p
+    | otherwise = error $ "Pointers must be greater than 0 and less than " ++ show indexSize ++ "!"
 
 -- | Dereferencing a pointer can be a bit cumbersome, since 0 is a special value. This helper makes that process a bit easier.
 usePointer :: Pointer -> a -> (Int -> a) -> a
