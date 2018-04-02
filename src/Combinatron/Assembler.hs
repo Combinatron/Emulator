@@ -49,10 +49,12 @@ opCode (N _) = 7
 opCode (M _) = 8
 opCode Y = 9
 opCode I = 10
+opCode (Sparked _) = 11
 
 opPointer :: Word -> Word16
 opPointer (N (Pointer p)) = fromIntegral p
 opPointer (M (Pointer p)) = fromIntegral p
 opPointer (G (Pointer p)) = fromIntegral p
 opPointer (P (Pointer p)) = fromIntegral p
+opPointer (Sparked (Pointer p)) = fromIntegral p
 opPointer _ = 0

@@ -7,7 +7,7 @@ module Combinatron.Types (
     Machine(..),
     prettyPrint,
     printMachine,
-    n, m, g, p, s, program, emptyCursor, emptySentence, isN, isM, isP, isG, isNotNull, isNull,
+    n, m, g, p, s, sparked, program, emptyCursor, emptySentence, isN, isM, isP, isG, isSparked, isNotNull, isNull,
     initialize, cursorAt, sentenceAt,
     -- lenses
     topCursor, midCursor, botCursor, sentenceIndex, value,

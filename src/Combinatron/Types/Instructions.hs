@@ -3,9 +3,9 @@ module Combinatron.Types.Instructions where
 
 import Prelude hiding (Word)
 import {-# SOURCE #-} Combinatron.Types.Memory (Pointer, newPointer)
-import Combinatron.Types.Parameters (indexPower)
+import Combinatron.Types.Parameters (indexPower, nodeRootSize)
 
-data Word = B | C | K | W | I | Y | N Pointer | M Pointer | G Pointer | P Pointer | NullWord
+data Word = B | C | K | W | I | Y | N Pointer | M Pointer | G Pointer | P Pointer | NullWord | Sparked Pointer
     deriving (Show, Eq)
 
 -- | This is a little helper for making it easier to construct N words.
@@ -24,6 +24,9 @@ g = G . newPointer
 p :: Int -> Word
 p = P . newPointer
 
+sparked :: Int -> Word
+sparked = Sparked . newPointer
+
 -- | Some comparison helpers
 isN (N _) = True
 isN _ = False
@@ -37,6 +40,9 @@ isG _ = False
 isP (P _) = True
 isP _ = False
 
+isSparked (Sparked _) = True
+isSparked _ = False
+
 isNotNull w = w /= NullWord
 isNull w = w == NullWord
 
@@ -45,4 +51,5 @@ wordArgSize (G _) = indexPower
 wordArgSize (P _) = indexPower
 wordArgSize (N _) = indexPower
 wordArgSize (M _) = indexPower
+wordArgSize (Sparked _) = ceiling . sqrt . fromIntegral $ nodeRootSize
 wordArgSize _ = 0

@@ -3,7 +3,7 @@ module Combinatron.Loader (
 ) where
 
 import Prelude hiding (Word)
-import Combinatron.Types (Word(..), SentenceIndex, program, g, p, n, m)
+import Combinatron.Types (Word(..), SentenceIndex, program, g, p, n, m, sparked)
 import Combinatron.Types.Instructions (wordArgSize)
 import qualified Data.Binary.Get as G
 import qualified Data.Binary.Strict.BitGet as BG
@@ -34,6 +34,7 @@ loadOp 7 = n . fromIntegral
 loadOp 8 = m . fromIntegral
 loadOp 9 = const Y
 loadOp 10 = const I
+loadOp 11 = sparked . fromIntegral
 loadOp _ = fail "unrecognized opcode"
 
 dummy = 1
