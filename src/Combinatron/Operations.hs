@@ -9,12 +9,13 @@ module Combinatron.Operations (
   swapWords,
   copyWord,
   zeroWord,
+  zeroCursor,
   swapCursors,
   putValue,
   getValue,
   noWord, oneWord, twoWord, threeWord, oneWord', twoWord',
   c0w0, c0w1, c0w2, c1w0, c1w1, c1w2, c2w0, c2w1, c2w2,
-  addRoot
+  addRoot, rotateRoots, loadRoot
 ) where
 -- | A library of primitive operations to modify Machine state.
 
@@ -82,6 +83,9 @@ copyWord a b m = set b (m^.a) m
 zeroWord :: Lens' Machine Word -> Machine -> Machine
 zeroWord w m = set w NullWord m
 
+zeroCursor :: Lens' Machine Cursor -> Machine -> Machine
+zeroCursor c m = set c emptyCursor m
+
 -- | Swap two cursors.
 swapCursors :: Lens' Machine Cursor -> Lens' Machine Cursor -> Machine -> Machine
 swapCursors a b m = set b (m^.a) $ (set a (m^.b) m)
@@ -146,3 +150,11 @@ c2w2 = topCursor.word2
 -- | add a root to task queue at the end
 addRoot :: Pointer -> Machine -> Machine
 addRoot p = over nodeRoots (flip snoc p)
+
+rotateRoots :: Machine -> Machine
+rotateRoots = over nodeRoots (\ roots -> V.tail roots `V.snoc` V.head roots)
+
+loadRoot :: Machine -> Machine
+loadRoot m = fetchCursor p botCursor m
+    where
+        p = V.head $ m^.nodeRoots

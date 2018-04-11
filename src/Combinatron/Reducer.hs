@@ -4,7 +4,7 @@ module Combinatron.Reducer where
 import Prelude hiding (Word)
 import Combinatron.Operations
 import Combinatron.Predicates
-import Combinatron.Types hiding (isP, isG, p, g)
+import Combinatron.Types hiding (isP, isG, isSparked, p, g, sparked)
 import Control.Lens (view)
 
 step :: Machine -> Either Machine Machine
@@ -26,6 +26,7 @@ step m
     | isG m = Right $ g m
     | isY m = Right $ y m
     | isI m = Right $ i m
+    | isSparked m = Right $ sparked m
     | otherwise = Left m
 
 -- Cursor rotation
@@ -128,3 +129,15 @@ y m = swapWords c0w0 c0w1 . swapWords c0w0 c1w0 . newNWord . swapWords c0w0 c1w0
 
 i :: Machine -> Machine
 i m = zeroWord c0w2 . swapWords c0w1 c0w2 . swapWords c0w0 c0w1 $ m
+
+sparked :: Machine -> Machine
+sparked = taskSwitch
+
+-- Write out all cursors to index
+-- Read new root from task index
+-- Load cursor from root into bottom cursor
+taskSwitch :: Machine -> Machine
+taskSwitch m = loadRoot . rotateRoots . zeroCursors . writeCursors $ m
+    where
+        writeCursors = writeCursor topCursor . writeCursor midCursor . writeCursor botCursor
+        zeroCursors = zeroCursor topCursor . zeroCursor midCursor . zeroCursor botCursor

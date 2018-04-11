@@ -3,7 +3,7 @@ module Combinatron.Predicates where
 
 import Prelude hiding (Word)
 import Combinatron.Operations
-import Combinatron.Types hiding (isP, isG, p, g)
+import Combinatron.Types hiding (isP, isG, isSparked, p, g)
 import Combinatron.Types.Parameters (nodeRootSize)
 import qualified Combinatron.Types as Types
 import Control.Lens (view, to)
@@ -30,6 +30,9 @@ isP = view (c0w0.to Types.isP)
 
 isY :: Machine -> Bool
 isY = oneCursorSingleArg Y
+
+isSparked :: Machine -> Bool
+isSparked = view (c0w0.to Types.isSparked)
 
 havingPropertiesAndWord :: [Machine -> Bool] -> Word -> Machine ->  Bool
 havingPropertiesAndWord preds w m = all ($ m) ((primaryWord w):preds)
