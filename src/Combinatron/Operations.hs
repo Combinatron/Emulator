@@ -3,6 +3,7 @@ module Combinatron.Operations (
   fetchCursor,
   writeCursor,
   addSentence,
+  addSentenceAndUpdate,
   newMWord,
   newNWord,
   swapWords,
@@ -46,11 +47,16 @@ putValue p m = m'
         sentence = m^.value
 
 -- | Add a sentence to the index, writing an N word to a specified location.
-addSentence :: Sentence -> Lens' Machine Word -> Machine -> Machine
-addSentence s w m = set w newPointer (set sentenceIndex sI m)
+addSentenceAndUpdate :: Sentence -> Lens' Machine Word -> Machine -> Machine
+addSentenceAndUpdate s w m = set w (N p) sI
+    where
+        (p, sI) = (addSentence s m)
+
+addSentence :: Sentence -> Machine -> (Pointer, Machine)
+addSentence s m = (p, set sentenceIndex sI m)
     where
         sI = V.snoc (m^.sentenceIndex) s
-        newPointer = n (succ $ V.length $ m^.sentenceIndex)
+        p = newPointer . succ $ V.length $ m^.sentenceIndex
 
 -- | Create a new M word pointing to the location of the top cursor
 newMWord :: Machine -> Machine

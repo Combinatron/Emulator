@@ -75,13 +75,13 @@ w1 :: Machine -> Machine
 w1 m = copyWord c0w2 c0w1 . copyWord c0w1 c0w0 $ m
 
 w2 :: Machine -> Machine
-w2 m = rotateCursorsDown . addSentence (s (arg1, arg2, NullWord)) c1w0 $ m
+w2 m = rotateCursorsDown . addSentenceAndUpdate (s (arg1, arg2, NullWord)) c1w0 $ m
     where
         arg1 = view c0w1 m
         arg2 = view c1w1 m
 
 c1 :: Machine -> Machine
-c1 m = rotateCursorsDown . addSentence (s (arg1, arg2, NullWord)) c1w0 . copyWord c0w2 c1w1 $ m
+c1 m = rotateCursorsDown . addSentenceAndUpdate (s (arg1, arg2, NullWord)) c1w0 . copyWord c0w2 c1w1 $ m
     where
         arg1 = view c0w1 m
         arg2 = view c1w1 m
@@ -92,17 +92,17 @@ c2 m = rotateCursorsDown . swapWords c1w1 c1w2 . copyWord c0w1 c1w0 $ m
 c3 :: Machine -> Machine
 c3 m = rotateCursorsDown . step2 . rotateCursorsDown . step1 $ m
     where
-        step1 = newNWord . addSentence (s (view c0w1 m, view c2w1 m, NullWord)) c2w1
+        step1 = newNWord . addSentenceAndUpdate (s (view c0w1 m, view c2w1 m, NullWord)) c2w1
         step2 = copyWord c0w1 c1w1 . copyWord c1w1 c1w0
 
 b1 :: Machine -> Machine
-b1 m = rotateCursorsDown . copyWord c0w1 c1w0 . addSentence (s (arg1, arg2, NullWord)) c1w1 $ m
+b1 m = rotateCursorsDown . copyWord c0w1 c1w0 . addSentenceAndUpdate (s (arg1, arg2, NullWord)) c1w1 $ m
     where
         arg1 = view c0w2 m
         arg2 = view c1w1 m
 
 b2 :: Machine -> Machine
-b2 m = rotateCursorsDown . zeroWord c1w2 . copyWord c0w1 c1w0 . addSentence (s (arg1, arg2, NullWord)) c1w1 $ m
+b2 m = rotateCursorsDown . zeroWord c1w2 . copyWord c0w1 c1w0 . addSentenceAndUpdate (s (arg1, arg2, NullWord)) c1w1 $ m
     where
         arg1 = view c1w1 m
         arg2 = view c1w2 m
@@ -110,7 +110,7 @@ b2 m = rotateCursorsDown . zeroWord c1w2 . copyWord c0w1 c1w0 . addSentence (s (
 b3 :: Machine -> Machine
 b3 m = rotateCursorsDown . step2 . rotateCursorsDown . step1 $ m
     where
-        step1 = newNWord . copyWord c0w1 c2w1 . addSentence (s (view c1w1 m, view c2w1 m, NullWord)) c1w2
+        step1 = newNWord . copyWord c0w1 c2w1 . addSentenceAndUpdate (s (view c1w1 m, view c2w1 m, NullWord)) c1w2
         step2 = zeroWord c0w2 . swapWords c0w2 c1w1 . swapWords c1w1 c1w0
 
 g :: Machine -> Machine

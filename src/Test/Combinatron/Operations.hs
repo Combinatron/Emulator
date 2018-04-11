@@ -14,7 +14,7 @@ import qualified Data.Vector as V
 spec = do
     fetchCursor
     writeCursor
-    addSentence
+    addSentenceAndUpdate
     newMWord
     newNWord
     swapWords
@@ -154,35 +154,35 @@ writeCursor = do
                     numModified = numberOfModifiedSentences oldProgram newProgram
                 in (numModified == 1 && Combinatron.usePointer cp True (\i -> oldProgram V.! i /= newProgram V.! i)) || numModified == 0
 
-addSentenceTestData :: Combinatron.SentenceIndex -> Combinatron.Sentence -> Lens' Combinatron.Machine Combinatron.Word -> (Combinatron.SentenceIndex, Combinatron.Machine, Combinatron.Machine)
-addSentenceTestData prog s cw = (newProgram, newMachine, oldMachine)
+addSentenceAndUpdateTestData :: Combinatron.SentenceIndex -> Combinatron.Sentence -> Lens' Combinatron.Machine Combinatron.Word -> (Combinatron.SentenceIndex, Combinatron.Machine, Combinatron.Machine)
+addSentenceAndUpdateTestData prog s cw = (newProgram, newMachine, oldMachine)
     where
         oldMachine = Combinatron.initialize prog
-        newMachine = Ops.addSentence s cw oldMachine
+        newMachine = Ops.addSentenceAndUpdate s cw oldMachine
         newProgram = view Combinatron.sentenceIndex newMachine
 
-addSentence :: Spec
-addSentence = do
-    describe "addSentence" $ do
+addSentenceAndUpdate :: Spec
+addSentenceAndUpdate = do
+    describe "addSentenceAndUpdate" $ do
         it "increases the index size by 1" $ property $
             \ oldProgram cwsel newSentence ->
-                let (newProgram, _, _) = addSentenceTestData oldProgram newSentence (toLens cwsel)
+                let (newProgram, _, _) = addSentenceAndUpdateTestData oldProgram newSentence (toLens cwsel)
                 in V.length newProgram == 1 + V.length oldProgram
 
         it "does not modify any existing portion of the index" $ property $
             \ oldProgram cwsel newSentence ->
-                let (newProgram, _, _) = addSentenceTestData oldProgram newSentence (toLens cwsel)
+                let (newProgram, _, _) = addSentenceAndUpdateTestData oldProgram newSentence (toLens cwsel)
                     allIn = V.all (flip V.elem newProgram) oldProgram
                 in allIn
 
         it "the sentence index must now contain the sentence passed in" $ property $
             \ oldProgram cwsel newSentence ->
-                let (newProgram, _, _) = addSentenceTestData oldProgram newSentence (toLens cwsel)
+                let (newProgram, _, _) = addSentenceAndUpdateTestData oldProgram newSentence (toLens cwsel)
                 in V.elem newSentence newProgram
 
         it "only modifies the given word" $ property $
             \ (ValidProgram oldProgram) cwsel newSentence ->
-                let (_, newMachine, oldMachine) = addSentenceTestData oldProgram newSentence (toLens cwsel)
+                let (_, newMachine, oldMachine) = addSentenceAndUpdateTestData oldProgram newSentence (toLens cwsel)
                     numModified = numberOfModifiedWords oldMachine newMachine
                 in numModified == 1 && (view (toLens cwsel) newMachine /= view (toLens cwsel) oldMachine)
 
