@@ -27,7 +27,8 @@ step m
     | isY m = Right $ y m
     | isI m = Right $ i m
     | isSparked m = Right $ sparked m
-    | otherwise = Left m
+    | isRootsEmpty m = Left m
+    | otherwise = Right $ taskSwitch m
 
 -- Cursor rotation
 rotateCursorsDown :: Machine -> Machine

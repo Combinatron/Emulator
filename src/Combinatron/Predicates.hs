@@ -12,6 +12,9 @@ import qualified Data.Vector as V
 isRootsFull :: Machine -> Bool
 isRootsFull = view (nodeRoots.to ((nodeRootSize ==) . V.length))
 
+isRootsEmpty :: Machine -> Bool
+isRootsEmpty = view (nodeRoots.to V.null)
+
 isNest :: Machine -> Bool
 isNest = view (c0w0.to isN)
 
