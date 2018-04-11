@@ -14,8 +14,25 @@ import System.Random (randomRIO)
 -- | Spark a task starting at a random sentence in the index without including
 -- the first sentence
 sparkRandom :: Machine -> Machine
-sparkRandom m
-    | isRootsFull m = m
-    | otherwise = addRoot (newPointer rIndex) m
+sparkRandom m = sparkTask (newPointer $ rIndex) m
     where
-        rIndex = unsafePerformIO $ randomRIO (2, view (sentenceIndex.to V.length) m)
+        rIndex = unsafePerformIO $ randomRIO (2, (view (sentenceIndex.to V.length) m))
+
+ifNotFull :: (Machine -> Machine) -> Machine -> Machine
+ifNotFull f m
+    | isRootsFull m = m
+    | otherwise = f m
+
+-- To spark a task, manipulate index to include sparked word
+-- Add location of new, original sentence to task roots.
+sparkTask :: Pointer -> Machine -> Machine
+sparkTask index m = ifNotFull (uncurry addRoot . sparkWord index) m
+
+-- Move the sentence at the location
+-- Write a single Sparked word in the index location, with the location of the moved sentence
+sparkWord :: Pointer -> Machine -> (Pointer, Machine)
+sparkWord index m = (p, m'')
+    where
+        s = sentenceAt p (view sentenceIndex m)
+        (p, m') = addSentence s m
+        m'' = setSentenceMachine index (Sentence (Sparked p) NullWord NullWord) m'
