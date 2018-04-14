@@ -11,6 +11,7 @@ step :: Machine -> Either Machine Machine
 step m
     | isLoneNest m = Right $ loneNest m
     | isNest m = Right $ nest m
+    | isSparked m = Right $ sparked m -- Must come before unnest check
     | isUnnest m = Right $ unnest m
     | isK1 m = Right $ k1 m
     | isK2 m = Right $ k2 m
@@ -26,7 +27,6 @@ step m
     | isG m = Right $ g m
     | isY m = Right $ y m
     | isI m = Right $ i m
-    | isSparked m = Right $ sparked m
     | isRootsEmpty m = Left m
     | otherwise = Right $ taskSwitch m
 
