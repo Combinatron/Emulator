@@ -131,8 +131,13 @@ y m = swapWords c0w0 c0w1 . swapWords c0w0 c1w0 . newNWord . swapWords c0w0 c1w0
 i :: Machine -> Machine
 i m = zeroWord c0w2 . swapWords c0w1 c0w2 . swapWords c0w0 c0w1 $ m
 
+-- Don't task switch immediately, instead convert Sparked word to an N word
+-- first and then task switch. This allows for forcing the task on the next
+-- round.
 sparked :: Machine -> Machine
-sparked = taskSwitch
+sparked m = taskSwitch . addSentenceAndUpdate (s (N p, NullWord, NullWord)) c0w0 $ m
+    where
+        (Sparked p) = view c0w0 m
 
 -- Write out all cursors to index
 -- Read new root from task index
