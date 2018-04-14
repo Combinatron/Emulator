@@ -2,6 +2,7 @@
 module Combinatron.Operations (
   fetchCursor,
   writeCursor,
+  writeCursors,
   addSentence,
   addSentenceAndUpdate,
   newMWord,
@@ -10,6 +11,7 @@ module Combinatron.Operations (
   copyWord,
   zeroWord,
   zeroCursor,
+  zeroCursors,
   swapCursors,
   putValue,
   getValue,
@@ -35,6 +37,9 @@ writeCursor c m = m'
         p = m^.c.cursorPointer
         sentence = m^.c.cursorSentence
         m' = setSentenceMachine p sentence m
+
+writeCursors :: Machine -> Machine
+writeCursors = writeCursor topCursor . writeCursor midCursor . writeCursor botCursor
 
 getValue :: Pointer -> Machine -> Machine
 getValue p m = set value s m
@@ -85,6 +90,9 @@ zeroWord w m = set w NullWord m
 
 zeroCursor :: Lens' Machine Cursor -> Machine -> Machine
 zeroCursor c m = set c emptyCursor m
+
+zeroCursors :: Machine -> Machine
+zeroCursors = zeroCursor topCursor . zeroCursor midCursor . zeroCursor botCursor
 
 -- | Swap two cursors.
 swapCursors :: Lens' Machine Cursor -> Lens' Machine Cursor -> Machine -> Machine
