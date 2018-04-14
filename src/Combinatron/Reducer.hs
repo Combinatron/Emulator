@@ -27,8 +27,8 @@ step m
     | isG m = Right $ g m
     | isY m = Right $ y m
     | isI m = Right $ i m
-    | isRootsEmpty m = Left m
-    | otherwise = Right $ taskSwitch m
+    | not (isRootsEmpty m) = Right $ taskSwitch m
+    | otherwise = Left m
 
 -- Cursor rotation
 rotateCursorsDown :: Machine -> Machine
