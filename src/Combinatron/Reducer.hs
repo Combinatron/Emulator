@@ -27,7 +27,7 @@ step m
     | isG m = Right $ g m
     | isY m = Right $ y m
     | isI m = Right $ i m
-    | not (isRootsEmpty m) = Right $ taskSwitch m
+    | not (isRootsEmpty m) = Right $ whnf m
     | otherwise = Left m
 
 -- Cursor rotation
@@ -144,3 +144,6 @@ sparked m = taskSwitch . addSentenceAndUpdate (s (N p, NullWord, NullWord)) c0w0
 -- Load cursor from root into bottom cursor
 taskSwitch :: Machine -> Machine
 taskSwitch m = loadRoot . rotateRoots . zeroCursors . updateRoot . writeCursors $ m
+
+whnf :: Machine -> Machine
+whnf m = loadRoot . rotateRoots . removeRoot . zeroCursors . writeCursors $ m

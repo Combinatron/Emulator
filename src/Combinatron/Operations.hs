@@ -17,7 +17,7 @@ module Combinatron.Operations (
   getValue,
   noWord, oneWord, twoWord, threeWord, oneWord', twoWord',
   c0w0, c0w1, c0w2, c1w0, c1w1, c1w2, c2w0, c2w1, c2w2,
-  addRoot, rotateRoots, loadRoot, updateRoot
+  addRoot, rotateRoots, loadRoot, updateRoot, removeRoot
 ) where
 -- | A library of primitive operations to modify Machine state.
 
@@ -178,3 +178,6 @@ updateRoot m = over nodeRoots (\ roots -> t `V.cons` V.tail roots) m
             , _midPointer = m^.midCursor.cursorPointer
             , _topPointer = m^.topCursor.cursorPointer
             }
+
+removeRoot :: Machine -> Machine
+removeRoot = over nodeRoots V.tail
