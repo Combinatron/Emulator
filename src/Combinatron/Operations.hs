@@ -15,7 +15,7 @@ module Combinatron.Operations (
   getValue,
   noWord, oneWord, twoWord, threeWord, oneWord', twoWord',
   c0w0, c0w1, c0w2, c1w0, c1w1, c1w2, c2w0, c2w1, c2w2,
-  addRoot, rotateRoots, loadRoot
+  addRoot, rotateRoots, loadRoot, updateRoot
 ) where
 -- | A library of primitive operations to modify Machine state.
 
@@ -149,12 +149,24 @@ c2w2 = topCursor.word2
 
 -- | add a root to task queue at the end
 addRoot :: Pointer -> Machine -> Machine
-addRoot p = over nodeRoots (flip snoc p)
+addRoot p = over nodeRoots (flip snoc (newTask p))
 
 rotateRoots :: Machine -> Machine
 rotateRoots = over nodeRoots (\ roots -> V.tail roots `V.snoc` V.head roots)
 
 loadRoot :: Machine -> Machine
-loadRoot m = fetchCursor p botCursor m
+loadRoot m =
+    fetchCursor (root^.topPointer) topCursor .
+    fetchCursor (root^.midPointer) midCursor .
+    fetchCursor (root^.botPointer) botCursor $ m
     where
-        p = V.head $ m^.nodeRoots
+        root = V.head $ m^.nodeRoots
+
+updateRoot :: Machine -> Machine
+updateRoot m = over nodeRoots (\ roots -> t `V.cons` V.tail roots) m
+    where
+        t = Task
+            { _botPointer = m^.botCursor.cursorPointer
+            , _midPointer = m^.midCursor.cursorPointer
+            , _topPointer = m^.topCursor.cursorPointer
+            }

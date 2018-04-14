@@ -5,6 +5,7 @@ module Combinatron.Types (
     Sentence(..),
     SentenceIndex,
     Machine(..),
+    Task(..), newTask, topPointer, midPointer, botPointer,
     prettyPrint,
     printMachine,
     n, m, g, p, s, sparked, program, emptyCursor, emptySentence, isN, isM, isP, isG, isSparked, isNotNull, isNull,

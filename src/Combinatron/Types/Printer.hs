@@ -53,6 +53,16 @@ instance PrettyPrinter Machine where
         , "Value: " ++ prettyPrint (machine^.value)
         ]
 
+instance PrettyPrinter Task where
+    prettyPrint task = concat
+        [ "[ top "
+        , prettyPrint (task^.topPointer)
+        , ", mid "
+        , prettyPrint (task^.midPointer)
+        , ", bot "
+        , prettyPrint (task^.botPointer)
+        ]
+
 -- Assumes 0 is always the root
 -- No sharing of sentences
 printCombinators :: Machine -> String

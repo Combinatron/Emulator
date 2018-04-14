@@ -16,10 +16,21 @@ data Machine = Machine
     }
     deriving (Show)
 
-type TaskQueue = V.Vector Pointer
+data Task = Task
+    { _botPointer :: Pointer
+    , _midPointer :: Pointer
+    , _topPointer :: Pointer
+    }
+    deriving (Show)
+
+type TaskQueue = V.Vector Task
+
+newTask :: Pointer -> Task
+newTask p = Task p nullPointer nullPointer
 
 -- | Lenses
 makeLenses ''Machine
+makeLenses ''Task
 
 -- | Builds a machine from a given SentenceIndex. The SentenceIndex is essentially just a program. By convention, the first sentence in the index is the starting point.
 initialize :: SentenceIndex -> Machine
@@ -28,7 +39,7 @@ initialize index = Machine
     , _midCursor = emptyCursor
     , _botCursor = cursorAt (newPointer 1) index
     , _sentenceIndex = index
-    , _nodeRoots = V.fromList [newPointer 1]
+    , _nodeRoots = V.fromList [newTask (newPointer 1)]
     , _value = emptySentence
     }
 
