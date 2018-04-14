@@ -16,6 +16,8 @@ import System.Random (randomRIO)
 sparkRandom :: Machine -> Machine
 sparkRandom m = sparkTask (newPointer $ rIndex) m
     where
+        -- this is considering a zero indexed array, which will be converted to 1-indexed.
+        -- Start at the second index, and end at the last.
         rIndex = unsafePerformIO $ randomRIO (2, (view (sentenceIndex.to V.length) m))
 
 ifNotFull :: (Machine -> Machine) -> Machine -> Machine
@@ -33,6 +35,6 @@ sparkTask index m = ifNotFull (uncurry addRoot . sparkWord index) m
 sparkWord :: Pointer -> Machine -> (Pointer, Machine)
 sparkWord index m = (p, m'')
     where
-        s = sentenceAt p (view sentenceIndex m)
+        s = sentenceAt index (view sentenceIndex m)
         (p, m') = addSentence s m
         m'' = setSentenceMachine index (Sentence (Sparked p) NullWord NullWord) m'
