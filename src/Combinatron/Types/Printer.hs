@@ -61,6 +61,7 @@ instance PrettyPrinter Task where
         , prettyPrint (task^.midPointer)
         , ", bot "
         , prettyPrint (task^.botPointer)
+        , " ]"
         ]
 
 -- Assumes 0 is always the root
