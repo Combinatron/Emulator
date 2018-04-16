@@ -157,10 +157,10 @@ c2w2 = topCursor.word2
 
 -- | add a root to task queue at the end
 addRoot :: Pointer -> Machine -> Machine
-addRoot p = over nodeRoots (flip snoc (newTask p))
+addRoot p = over nodeRoots (newTask p)
 
 rotateRoots :: Machine -> Machine
-rotateRoots = over nodeRoots (\ roots -> V.tail roots `V.snoc` V.head roots)
+rotateRoots = over (nodeRoots.taskQueue) (\ roots -> V.tail roots `V.snoc` V.head roots)
 
 loadRoot :: Machine -> Machine
 loadRoot m =
@@ -168,16 +168,17 @@ loadRoot m =
     fetchCursor (root^.midPointer) midCursor .
     fetchCursor (root^.botPointer) botCursor $ m
     where
-        root = V.head $ m^.nodeRoots
+        root = V.head $ m^.nodeRoots.taskQueue
 
 updateRoot :: Machine -> Machine
-updateRoot m = over nodeRoots (\ roots -> t `V.cons` V.tail roots) m
+updateRoot m = over (nodeRoots.taskQueue) (\ roots -> t `V.cons` V.tail roots) m
     where
-        t = Task
+        task = m^.nodeRoots.taskQueue.to V.head
+        t = task
             { _botPointer = m^.botCursor.cursorPointer
             , _midPointer = m^.midCursor.cursorPointer
             , _topPointer = m^.topCursor.cursorPointer
             }
 
 removeRoot :: Machine -> Machine
-removeRoot = over nodeRoots V.tail
+removeRoot = over (nodeRoots.taskQueue) V.tail

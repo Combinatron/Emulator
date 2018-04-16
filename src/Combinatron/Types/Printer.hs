@@ -28,14 +28,16 @@ instance PrettyPrinter Sentence where
 instance PrettyPrinter Cursor where
     prettyPrint (Cursor (Pointer p) s) = "{" ++ show p ++ " " ++ prettyPrint s ++ "}"
 
-printVector :: (PrettyPrinter a) => V.Vector a -> String
-printVector = foldr (++) "" . intersperse ", " . map prettyPrint . V.toList
-
-instance PrettyPrinter SentenceIndex where
-    prettyPrint = printVector
+instance PrettyPrinter a => PrettyPrinter (V.Vector a) where
+    prettyPrint = foldr (++) "" . intersperse ", " . map prettyPrint . V.toList
 
 instance PrettyPrinter TaskQueue where
-    prettyPrint = printVector
+    prettyPrint queue = concat
+        [ "\n"
+        , "- queue: ", prettyPrint (queue^.taskQueue)
+        , "\n"
+        , "- id: ", show (queue^.nextTaskId)
+        ]
 
 instance PrettyPrinter Pointer where
     prettyPrint (Pointer p) = "Pointer " ++ show p
@@ -61,6 +63,8 @@ instance PrettyPrinter Task where
         , prettyPrint (task^.midPointer)
         , ", bot "
         , prettyPrint (task^.botPointer)
+        , ", id "
+        , show (task^.taskId)
         , " ]"
         ]
 

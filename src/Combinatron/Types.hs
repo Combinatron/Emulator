@@ -14,7 +14,7 @@ module Combinatron.Types (
     topCursor, midCursor, botCursor, sentenceIndex, value,
     priWord, secWord, triWord,
     cursorPointer, cursorSentence,
-    nodeRoots,
+    nodeRoots, taskQueue, nextTaskId,
     -- Machine Manipulation
     setSentenceMachine
 ) where
