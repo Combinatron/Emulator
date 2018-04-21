@@ -28,6 +28,7 @@ step m
     | isY m = Right $ y m
     | isI m = Right $ i m
     | not (isRootsEmpty m) = Right $ whnf m
+    | isInvalidUnnest m = Right $ deadTask m
     | otherwise = Left m
 
 -- Cursor rotation
@@ -147,3 +148,6 @@ taskSwitch m = loadRoot . rotateRoots . zeroCursors . updateRoot . writeCursors 
 
 whnf :: Machine -> Machine
 whnf m = loadRoot . rotateRoots . removeRoot . zeroCursors . writeCursors $ m
+
+deadTask :: Machine -> Machine
+deadTask = whnf

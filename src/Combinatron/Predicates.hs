@@ -93,3 +93,6 @@ isI = oneCursorSingleArg I
 
 primaryWord :: Word -> Machine -> Bool
 primaryWord w m = view c0w0 m == w
+
+isInvalidUnnest :: Machine -> Bool
+isInvalidUnnest = view (c0w0.to isM)
