@@ -144,7 +144,7 @@ sparked m = taskSwitch . addSentenceAndUpdate (s (N p, NullWord, NullWord)) c0w0
 -- Read new root from task index
 -- Load cursor from root into bottom cursor
 taskSwitch :: Machine -> Machine
-taskSwitch m = loadRoot . rotateRoots . zeroCursors . updateRoot . writeCursors $ m
+taskSwitch m = loadRoot . rotateRoots . zeroCursors . writeCursors $ m
 
 whnf :: Machine -> Machine
 whnf m = loadRoot . rotateRoots . removeRoot . zeroCursors . writeCursors $ m
