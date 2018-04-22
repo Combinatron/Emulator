@@ -3,6 +3,7 @@ module Main where
 import Combinatron (run, runDebug)
 import Combinatron.Types (initialize, printMachine)
 import Combinatron.Loader
+import qualified Combinatron.GarbageCollector as GC
 import qualified Data.ByteString.Lazy as B
 import Options.Applicative.Simple (simpleOptions, addCommand, argument, str, metavar, pure)
 
@@ -26,4 +27,4 @@ commandLine =
 main = do
     (_, (runCmd, input)) <- commandLine
     prog <- loadFile <$> B.readFile input
-    printMachine $ runCmd (initialize prog)
+    printMachine $ runCmd GC.initialize (initialize prog)

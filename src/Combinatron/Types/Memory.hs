@@ -1,4 +1,4 @@
-{-# LANGUAGE TypeSynonymInstances, FlexibleInstances, TemplateHaskell #-}
+{-# LANGUAGE TypeSynonymInstances, FlexibleInstances, TemplateHaskell, GeneralizedNewtypeDeriving  #-}
 module Combinatron.Types.Memory where
 
 import Prelude hiding (Word)
@@ -7,10 +7,11 @@ import Control.Lens
 import Data.Maybe (fromMaybe)
 import Combinatron.Types.Instructions (Word(NullWord))
 import Combinatron.Types.Parameters (indexSize)
+import Data.Hashable (Hashable)
 
 -- | A Pointer is just a wrapper around an Int. It only exposes printing and equality functionality.
 newtype Pointer = Pointer Int
-    deriving (Show, Eq)
+    deriving (Show, Eq, Hashable)
 
 nullPointer = Pointer 0
 

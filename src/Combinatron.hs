@@ -9,23 +9,27 @@ import System.IO.Unsafe (unsafePerformIO)
 import Combinatron.Reducer
 import Combinatron.Sparker
 import Combinatron.Operations (updateRoot)
-import Control.Monad ((<=<))
+import Combinatron.GarbageCollector
 
-run m = case (runner m) of
-    (Right m) -> run m
+run c m = case (runner c m r) of
+    (Right (c, m)) -> run c m
     (Left m) -> m
     where
         r :: Machine -> Either Machine Machine
         r = step . updateRoot
-        runner = fmap sparkRandom . r <=< r
 
-runDebug m = case (runner m) of
-    (Right m) -> runDebug m
-    (Left m) -> m
+runDebug c m = case (runner c m r) of
+    (Right (c, m)) -> runDebug c m
+    (Left  m) -> m
     where
         r :: Machine -> Either Machine Machine
-        r = step . updateRoot . unsafePerformIO . printMachine
-        runner = fmap sparkRandom . r <=< r
+        r = step . updateRoot . unsafePerformIO . (\m -> getLine >> printMachine m)
+
+runner c m r = fmap sparker $ stepOne >>= stepTwo
+    where
+        stepOne = fmap (collect c) (r m)
+        stepTwo (c', m') = fmap (collect c') (r m')
+        sparker (c'', m'') = (c'', sparkRandom m'')
 
 runN 0 m = m
 runN n m = case step m of
