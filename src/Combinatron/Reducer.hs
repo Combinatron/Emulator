@@ -147,7 +147,7 @@ taskSwitch :: Machine -> Machine
 taskSwitch m = loadRoot . rotateRoots . zeroCursors . writeCursors $ m
 
 whnf :: Machine -> Machine
-whnf m = loadRoot . rotateRoots . removeRoot . zeroCursors . writeCursors $ m
+whnf m = loadRoot . removeRoot . zeroCursors . writeCursors $ m
 
 deadTask :: Machine -> Machine
 deadTask = whnf
