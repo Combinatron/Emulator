@@ -25,16 +25,22 @@ instance PrettyPrinter Word where
 instance PrettyPrinter Sentence where
     prettyPrint (Sentence w w' w'') = "<" ++ prettyPrint w ++ " " ++ prettyPrint w' ++ " " ++ prettyPrint w'' ++ ">"
 
+instance PrettyPrinter (Int, Sentence) where
+    prettyPrint (i, s) = show (succ i) ++ " " ++ prettyPrint s
+
 instance PrettyPrinter Cursor where
     prettyPrint (Cursor (Pointer p) s) = "{" ++ show p ++ " " ++ prettyPrint s ++ "}"
 
-instance PrettyPrinter a => PrettyPrinter (V.Vector a) where
-    prettyPrint = foldr (++) "" . intersperse ", " . map prettyPrint . V.toList
+instance PrettyPrinter (V.Vector Task) where
+    prettyPrint = foldr (++) "" . intersperse "\n\t" . V.toList . V.imap (\ i m -> prettyPrint (i, m))
+
+instance PrettyPrinter (V.Vector Sentence) where
+    prettyPrint = foldr (++) "" . intersperse "\n\t" . V.toList . V.imap (\ i m -> prettyPrint (i, m))
 
 instance PrettyPrinter TaskQueue where
     prettyPrint queue = concat
         [ "\n"
-        , "- queue: ", prettyPrint (queue^.taskQueue)
+        , "- queue:\n\t", prettyPrint (queue^.taskQueue)
         , "\n"
         , "- id: ", show (queue^.nextTaskId)
         ]
@@ -49,7 +55,7 @@ instance PrettyPrinter Machine where
         , "- top: " ++ prettyPrint (machine^.topCursor)
         , "- mid: " ++ prettyPrint (machine^.midCursor)
         , "- bot: " ++ prettyPrint (machine^.botCursor)
-        , "Index: " ++ prettyPrint (machine^.sentenceIndex)
+        , "Index:\n\t" ++ prettyPrint (machine^.sentenceIndex)
         , "Task Queue: " ++ prettyPrint (machine^.nodeRoots)
         , "Combinators: " ++ printCombinators machine
         , "Value: " ++ prettyPrint (machine^.value)
@@ -67,6 +73,9 @@ instance PrettyPrinter Task where
         , show (task^.taskId)
         , " ]"
         ]
+
+instance PrettyPrinter (Int, Task) where
+    prettyPrint (i, s) = show i ++ " " ++ prettyPrint s
 
 -- Assumes 0 is always the root
 -- No sharing of sentences
