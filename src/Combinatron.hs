@@ -1,37 +1,40 @@
 module Combinatron (
   run,
   runDebug,
-  runN
+  runN,
+  runner
 ) where
 
 import Combinatron.Types (printMachine, Machine)
-import System.IO.Unsafe (unsafePerformIO)
 import Combinatron.Reducer
 import Combinatron.Sparker
 import Combinatron.Operations (updateRoot)
 import Combinatron.GarbageCollector
+import Control.Monad ((=<<))
 
-run c m = case (runner c m r) of
-    (Right (c, m)) -> run c m
-    (Left m) -> m
-    where
-        r :: Machine -> Either Machine Machine
-        r = step . updateRoot
+infinity = 1/0
 
-runDebug c m = case (runner c m r) of
-    (Right (c, m)) -> runDebug c m
-    (Left  m) -> m
-    where
-        r :: Machine -> Either Machine Machine
-        r = step . updateRoot . unsafePerformIO . (\m -> getLine >> printMachine m)
+run = runN infinity
 
-runner c m r = fmap sparker $ stepOne >>= stepTwo
+runDebug c m = do
+    prompt
+    let (c', m') = runN 1 c m
+    printMachine m
+    printCollector c'
+    runDebug c' m'
+
+prompt = getLine
+
+runner c m r = fmap sparker $ stepTwo =<< stepOne
     where
         stepOne = fmap (collect c) (r m)
         stepTwo (c', m') = fmap (collect c') (r m')
         sparker (c'', m'') = (c'', sparkRandom m'')
 
-runN 0 m = m
-runN n m = case step m of
-    (Right m) -> runN (n - 1) m
-    (Left m) -> m
+runN 0 c m = (c, m)
+runN n c m = case runner c m r of
+    (Right (c', m')) -> runN (n - 1) c' m'
+    (Left m) -> (c, m)
+    where
+        r :: Machine -> Either Machine Machine
+        r = step . updateRoot

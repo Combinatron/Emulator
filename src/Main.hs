@@ -16,7 +16,7 @@ commandLine =
             addCommand
                 "run"
                 "Run a program and print the final state"
-                (\ s -> (run, s))
+                (\ s -> (\ x y -> return (run x y), s))
                 (argument str (metavar "FILE"))
             addCommand
                 "debug"
@@ -27,4 +27,6 @@ commandLine =
 main = do
     (_, (runCmd, input)) <- commandLine
     prog <- loadFile <$> B.readFile input
-    printMachine $ runCmd GC.initialize (initialize prog)
+    putStrLn "Running..."
+    (_, m') <- runCmd GC.initialize (initialize prog)
+    printMachine m'
