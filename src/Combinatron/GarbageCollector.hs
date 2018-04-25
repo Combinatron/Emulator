@@ -1,6 +1,7 @@
 module Combinatron.GarbageCollector (
     collect,
-    initialize
+    initialize,
+    printCollector
 ) where
 
 import Prelude hiding (Word)
@@ -11,8 +12,22 @@ import qualified Data.HashMap.Strict as M
 import Data.HashMap.Strict (HashMap)
 import Control.Lens (view, set)
 import Data.Maybe (mapMaybe)
+import Data.List (sortOn)
 
 initialize = M.empty
+
+printCollector :: Collector -> IO ()
+printCollector c = do
+    putStr "\nCollector:\t"
+    let pairs = sortOn fst (M.toList c)
+    mapM_ (\ x -> putStr "\n\t" >> printCollectorEntry x) pairs
+    putStr "\n"
+
+printCollectorEntry :: (Pointer, Liveness) -> IO ()
+printCollectorEntry (p, l) = do
+    putStr $ prettyPrint p
+    putStr " - "
+    putStr $ show l
 
 type Collector = HashMap Pointer Liveness
 type References = [Pointer]

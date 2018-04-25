@@ -11,7 +11,7 @@ import Data.Hashable (Hashable)
 
 -- | A Pointer is just a wrapper around an Int. It only exposes printing and equality functionality.
 newtype Pointer = Pointer Int
-    deriving (Show, Eq, Hashable)
+    deriving (Show, Eq, Hashable, Ord)
 
 nullPointer = Pointer 0
 
