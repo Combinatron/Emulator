@@ -45,9 +45,13 @@ remove :: SentenceIndex -> Collector -> (Collector, SentenceIndex)
 remove si c = (c, V.ifilter (\ i _ -> M.lookupDefault Referenced (newPointer (succ i)) c /= Dead) si)
 
 markRoots :: TaskQueue -> Collector -> Collector
-markRoots tq c = foldr (M.update (const (Just Referenced))) c . fmap (view botPointer) $ tasks
+markRoots tq c = top
     where
         tasks = view taskQueue tq
+        updater p m = foldr (flip M.insert Referenced) m . fmap (view p)
+        bot = updater botPointer c $ tasks
+        mid = updater midPointer bot $ tasks
+        top = updater topPointer mid $ tasks
 
 mark :: SentenceIndex -> Collector -> Collector
 mark si c = V.ifoldr (\ i s -> markSentence (newPointer (succ i)) (references s)) c si
@@ -61,9 +65,9 @@ markSentence :: Pointer -> References -> Collector -> Collector
 markSentence p references c =
     case liveness of
         Dead -> updated
-        _ -> foldr (M.update (const (Just Referenced))) updated references
+        _ -> foldr (flip M.insert Referenced) updated references
     where
-        updated = M.update (const (Just newLiveness)) p c
+        updated = M.insert p newLiveness c
         liveness = M.lookupDefault Referenced p c
         newLiveness = decreaseLiveness liveness
 
