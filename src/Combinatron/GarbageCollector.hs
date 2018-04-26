@@ -55,4 +55,5 @@ references s = filter (/= nullPointer) . mapMaybe (reference) $ [fw, sw, tw]
 reference :: Word -> Maybe Pointer
 reference (N p) = Just p
 reference (M p) = Just p
+reference (Sparked p) = Just p
 reference _ = Nothing
