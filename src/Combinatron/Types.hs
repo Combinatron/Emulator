@@ -6,12 +6,13 @@ module Combinatron.Types (
     SentenceIndex,
     Machine(..),
     Task(..), newTask, topPointer, midPointer, botPointer,
+    Collector, References, Liveness(..),
     prettyPrint,
     printMachine,
     n, m, g, p, s, sparked, program, emptyCursor, emptySentence, isN, isM, isP, isG, isSparked, isNotNull, isNull,
     initialize, cursorAt, sentenceAt,
     -- lenses
-    topCursor, midCursor, botCursor, sentenceIndex, value,
+    topCursor, midCursor, botCursor, sentenceIndex, value, garbageCollector,
     priWord, secWord, triWord,
     cursorPointer, cursorSentence,
     nodeRoots, taskQueue, nextTaskId,
@@ -25,3 +26,4 @@ import Combinatron.Types.Machine
 import Combinatron.Types.Memory
 import Combinatron.Types.Instructions
 import Combinatron.Types.Evaluator
+import Combinatron.Types.GarbageCollector hiding (initialize)

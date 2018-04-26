@@ -16,25 +16,24 @@ infinity = 1/0
 
 run = runN infinity
 
-runDebug c m = do
+runDebug m = do
     prompt
-    let (c', m') = runN 1 c m
-    printMachine m
-    printCollector c'
-    runDebug c' m'
+    let m' = runN 1 m
+    printMachine m'
+    runDebug m'
 
 prompt = getLine
 
-runner c m r = fmap sparker $ stepTwo =<< stepOne
+runner m r = fmap sparker $ stepTwo =<< stepOne
     where
-        stepOne = fmap (collect c) (r m)
-        stepTwo (c', m') = fmap (collect c') (r m')
-        sparker (c'', m'') = (c'', sparkRandom m'')
+        stepOne = fmap collect (r m)
+        stepTwo m' = fmap collect (r m')
+        sparker m'' = sparkRandom m''
 
-runN 0 c m = (c, m)
-runN n c m = case runner c m r of
-    (Right (c', m')) -> runN (n - 1) c' m'
-    (Left m) -> (c, m)
+runN 0 m = m
+runN n m = case runner m r of
+    (Right m') -> runN (n - 1) m'
+    (Left m) -> m
     where
         r :: Machine -> Either Machine Machine
         r = step . updateRoot

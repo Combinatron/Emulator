@@ -9,6 +9,9 @@ import Combinatron.Types.Memory
 import Combinatron.Types.Instructions
 import Combinatron.Types.Machine
 import Combinatron.Types.Evaluator
+import Combinatron.Types.GarbageCollector
+import Data.List (sortOn)
+import qualified Data.HashMap.Strict as M
 
 -- | Printing facilities
 class PrettyPrinter a where
@@ -59,6 +62,7 @@ instance PrettyPrinter Machine where
         , "Task Queue: " ++ prettyPrint (machine^.nodeRoots)
         , "Combinators: " ++ printCombinators machine
         , "Value: " ++ prettyPrint (machine^.value)
+        , "Garbage Collector:\n\t" ++ printCollector (machine^.garbageCollector)
         ]
 
 instance PrettyPrinter Task where
@@ -76,6 +80,14 @@ instance PrettyPrinter Task where
 
 instance PrettyPrinter (Int, Task) where
     prettyPrint (i, s) = show i ++ " " ++ prettyPrint s
+
+printCollector :: Collector -> String
+printCollector c = concat . intersperse "\n\t" . map printCollectorEntry $ pairs
+    where
+        pairs = sortOn fst (M.toList c)
+
+printCollectorEntry :: (Pointer, Liveness) -> String
+printCollectorEntry (p, l) = prettyPrint p ++ " - " ++ show l
 
 -- Assumes 0 is always the root
 -- No sharing of sentences
