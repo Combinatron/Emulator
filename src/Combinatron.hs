@@ -19,16 +19,16 @@ run = runN megacycle infinity
 
 runDebug m = do
     prompt
-    let m' = runN cycle 1 m
+    let m' = runN (fmap collect . cycle) 1 m
     printMachine m'
     prompt
-    let m'' = runN (fmap sparkRandom . cycle) 1 m'
+    let m'' = runN (fmap (collect . sparkRandom) . cycle) 1 m'
     printMachine m''
     runDebug m''
 
 prompt = getLine
 
-megacycle m = fmap sparkRandom $ cycle =<< cycle m
+megacycle m = fmap (collect . sparkRandom) $ cycle =<< (fmap collect . cycle) m
 
 runN :: (Num a, Eq a, Enum a) => (Machine -> Either Machine Machine) -> a -> Machine -> Machine
 runN _ 0 m = m
@@ -37,4 +37,4 @@ runN f n m = case f m of
     (Left m) -> m
 
 cycle :: Machine -> Either Machine Machine
-cycle = fmap collect . step . updateRoot
+cycle = step . updateRoot
