@@ -5,6 +5,7 @@ module Combinatron.GarbageCollector (
 import Prelude hiding (Word)
 import Combinatron.Types
 import Combinatron.Types.Machine (TaskQueue)
+import Combinatron.Types.Memory (nullPointer)
 import qualified Data.Vector as V
 import qualified Data.HashMap.Strict as M
 import Control.Lens (view, set)
@@ -21,7 +22,7 @@ markRoots :: TaskQueue -> Collector -> Collector
 markRoots tq c = top
     where
         tasks = view taskQueue tq
-        updater p m = foldr (flip M.insert Referenced) m . fmap (view p)
+        updater p m = foldr (flip M.insert Referenced) m . V.filter (/= nullPointer) . fmap (view p)
         bot = updater botPointer c $ tasks
         mid = updater midPointer bot $ tasks
         top = updater topPointer mid $ tasks
@@ -45,7 +46,7 @@ markSentence p references c =
         newLiveness = decreaseLiveness liveness
 
 references :: Sentence -> References
-references s = mapMaybe (reference) [fw, sw, tw]
+references s = filter (/= nullPointer) . mapMaybe (reference) $ [fw, sw, tw]
     where
         fw = view priWord s
         sw = view secWord s
