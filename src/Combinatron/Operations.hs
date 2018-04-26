@@ -25,6 +25,8 @@ import Prelude hiding (Word)
 import Combinatron.Types
 import qualified Data.Vector as V
 import Control.Lens
+import Safe (headMay)
+import qualified Data.HashMap.Strict as M
 
 -- | Read a sentence from the index into a cursor
 fetchCursor :: Pointer -> Lens' Machine Cursor -> Machine -> Machine
@@ -59,10 +61,13 @@ addSentenceAndUpdate s w m = set w (N p) sI
         (p, sI) = (addSentence s m)
 
 addSentence :: Sentence -> Machine -> (Pointer, Machine)
-addSentence s m = (p, set sentenceIndex sI m)
+addSentence s m = result
     where
-        sI = V.snoc (m^.sentenceIndex) s
+        result = case freePointer of
+            (Just p) -> (p, setSentenceMachine p s m)
+            Nothing -> (p, set sentenceIndex (V.snoc (m^.sentenceIndex) s) m)
         p = newPointer . succ $ V.length $ m^.sentenceIndex
+        freePointer = headMay . M.keys . M.filter (== Dead) $ m^.garbageCollector
 
 -- | Create a new M word pointing to the location of the top cursor
 newMWord :: Machine -> Machine

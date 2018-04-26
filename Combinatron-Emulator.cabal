@@ -32,7 +32,8 @@ executable Combinatron-Emulator
                        socket,
                        random,
                        unordered-containers,
-                       hashable
+                       hashable,
+                       safe
   hs-source-dirs:      src
   default-language:    Haskell2010
   ghc-options: -W -Werror
