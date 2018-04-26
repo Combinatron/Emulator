@@ -12,11 +12,23 @@ import Control.Lens (view, set)
 import Data.Maybe (mapMaybe)
 
 collect :: Machine -> Machine
-collect m = (\ c -> set garbageCollector c m) . mark si . markRoots roots $ collector
+collect m = (\ c -> set garbageCollector c m) . mark si . markCursors cursors . markRoots roots $ collector
     where
         si = view sentenceIndex m
         roots = view nodeRoots m
         collector = view garbageCollector m
+        cursors = filter (((==) nullPointer) . view cursorPointer) . map (flip view m) $ [botCursor, midCursor, topCursor]
+
+markCursors :: [Cursor] -> Collector -> Collector
+markCursors cursors c = foldr markCursor c cursors
+
+markCursor :: Cursor -> Collector -> Collector
+markCursor cursor c = withSentence
+    where
+        withPointer = M.insert p Referenced c
+        withSentence = markSentence p (references s) withPointer
+        p = view cursorPointer cursor
+        s = view cursorSentence cursor
 
 markRoots :: TaskQueue -> Collector -> Collector
 markRoots tq c = top
