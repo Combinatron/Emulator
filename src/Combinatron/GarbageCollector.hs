@@ -12,12 +12,15 @@ import Control.Lens (view, set)
 import Data.Maybe (mapMaybe)
 
 collect :: Machine -> Machine
-collect m = (\ c -> set garbageCollector c m) . mark si . markCursors cursors . markRoots roots $ collector
+collect m = (\ c -> set garbageCollector c m) . age . mark si . markCursors cursors . markRoots roots $ collector
     where
         si = view sentenceIndex m
         roots = view nodeRoots m
         collector = view garbageCollector m
         cursors = filter (((/=) nullPointer) . view cursorPointer) . map (flip view m) $ [botCursor, midCursor, topCursor]
+
+age :: Collector -> Collector
+age = fmap decreaseLiveness
 
 markCursors :: [Cursor] -> Collector -> Collector
 markCursors cursors c = foldr markCursor c cursors
@@ -53,9 +56,8 @@ markSentence p references c =
         Dead -> updated
         _ -> foldr (flip M.insert Referenced) updated references
     where
-        updated = M.insert p newLiveness c
+        updated = M.insert p liveness c
         liveness = M.lookupDefault Referenced p c
-        newLiveness = decreaseLiveness liveness
 
 references :: Sentence -> References
 references s = filter (/= nullPointer) . mapMaybe (reference) $ [fw, sw, tw]
