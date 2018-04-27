@@ -17,7 +17,7 @@ collect m = (\ c -> set garbageCollector c m) . mark si . markCursors cursors . 
         si = view sentenceIndex m
         roots = view nodeRoots m
         collector = view garbageCollector m
-        cursors = filter (((==) nullPointer) . view cursorPointer) . map (flip view m) $ [botCursor, midCursor, topCursor]
+        cursors = filter (((/=) nullPointer) . view cursorPointer) . map (flip view m) $ [botCursor, midCursor, topCursor]
 
 markCursors :: [Cursor] -> Collector -> Collector
 markCursors cursors c = foldr markCursor c cursors
