@@ -6,19 +6,24 @@ import Prelude hiding (Word)
 import Combinatron.Predicates
 import Combinatron.Operations
 import Combinatron.Types hiding (isP, isG, p, g)
-import Control.Lens (view, to)
+import Control.Lens (view)
 import System.IO.Unsafe (unsafePerformIO)
-import qualified Data.Vector as V
 import System.Random (randomRIO)
+import qualified Data.HashMap.Strict as M
 
--- | Spark a task starting at a random sentence in the index without including
+-- | Spark a task starting at a random undead sentence in the index without including
 -- the first sentence
 sparkRandom :: Machine -> Machine
-sparkRandom m = sparkTask (newPointer $ rIndex) m
+sparkRandom m = sparkTask (referencedPointers !! rIndex) m
     where
         -- this is considering a zero indexed array, which will be converted to 1-indexed.
         -- Start at the second index, and end at the last.
-        rIndex = unsafePerformIO $ randomRIO (2, (view (sentenceIndex.to V.length) m))
+        rIndex = unsafePerformIO $ randomRIO (0, (pred $ length referencedPointers))
+        -- Sometimes a task can be sparked for a dead cell. It can be the case
+        -- that this cell is moved to another dead cell such that it now has a
+        -- self-reference, which is illegal. This can't happen with undead
+        -- cells.
+        referencedPointers = M.keys $ M.filter ((/=) Dead) (view garbageCollector m)
 
 canSparkTask :: Pointer -> (Machine -> Machine) -> Machine -> Machine
 canSparkTask p f m
