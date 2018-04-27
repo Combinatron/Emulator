@@ -21,6 +21,6 @@ plus:= B (B W) (B B C) ;
 ~ three x = x x x
 thrice:= :plus: :once: :twice: ;
 
-~ :if: :thrice: :not: :false: k c
+:if: :thrice: :not: :false: k c
 ~ TOOD: This doesn't work, diverges
-:if: :plus: :twice: :twice: :not: :false: k c
+~ :if: :plus: :twice: :twice: :not: :false: k c
