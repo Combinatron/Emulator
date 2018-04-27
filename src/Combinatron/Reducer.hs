@@ -27,6 +27,7 @@ step m
     | isG m = Right $ g m
     | isY m = Right $ y m
     | isI m = Right $ i m
+    -- I end up in an infinite loop here because the task roots are never removed from the queue
     | isInvalidUnnest m = Right $ taskSwitch m
     | not (isRootsEmpty m) = Right $ whnf m
     | otherwise = Left m
