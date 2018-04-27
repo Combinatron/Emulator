@@ -27,8 +27,8 @@ step m
     | isG m = Right $ g m
     | isY m = Right $ y m
     | isI m = Right $ i m
+    | isInvalidUnnest m = Right $ taskSwitch m
     | not (isRootsEmpty m) = Right $ whnf m
-    | isInvalidUnnest m = Right $ deadTask m
     | otherwise = Left m
 
 -- Cursor rotation
