@@ -21,6 +21,7 @@ runDebug m = do
     prompt
     let m' = runN (fmap collect . cycle) 1 m
     printMachine m'
+    putStrLn "Sparking task..."
     prompt
     let m'' = runN (fmap (collect . sparkRandom) . cycle) 1 m'
     printMachine m''
