@@ -119,7 +119,7 @@ leftward i s si =
 rightward :: Int -> SentenceIndex -> String
 rightward i si =
     case si V.! i of
-        (Sentence (M _) _ _) -> error "Can not go rightward into M word"
+        (Sentence (M _) _ _) -> "Can not go rightward into M word"
         (Sentence w1 w2 w3) -> words $ [w1, w2, w3]
     where
         doPrint NullWord = ""
