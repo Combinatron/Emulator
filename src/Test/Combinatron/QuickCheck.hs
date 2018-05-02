@@ -4,7 +4,8 @@ module Test.Combinatron.QuickCheck where
 import Prelude hiding (Word)
 import Test.QuickCheck
 import Combinatron.Types
-import Combinatron (runN)
+import Combinatron (runN, megacycle)
+import Combinatron.Reducer (ExecutionStep(..), unwrapExecutionStep)
 import qualified Data.Vector as V
 import Data.List (partition, nub)
 import Control.Lens (Lens', set)
@@ -72,7 +73,7 @@ instance Arbitrary SteppedMachine where
     arbitrary = do
         (ValidProgram program) <- arbitrary :: Gen ValidProgram
         steps <- resize (V.length program) (arbitrarySizedNatural :: Gen Int)
-        return $ SteppedMachine $ runN steps $ initialize program
+        return $ SteppedMachine $ unwrapExecutionStep $ runN megacycle steps $ Initialized (initialize program)
 
 -- Valid programs must have no repeated sentences and all pointers must be
 -- within the length of the program.
