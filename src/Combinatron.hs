@@ -2,7 +2,8 @@ module Combinatron (
   run,
   runDebug,
   runN,
-  cycle
+  cycle,
+  megacycle
 ) where
 
 import Prelude hiding (cycle)
