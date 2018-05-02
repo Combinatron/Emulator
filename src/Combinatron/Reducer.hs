@@ -7,30 +7,51 @@ import Combinatron.Predicates
 import Combinatron.Types hiding (isP, isG, isSparked, p, g, sparked)
 import Control.Lens (view)
 
-step :: Machine -> Either Machine Machine
+data ExecutionStep s m
+    = Stopped s
+    | TaskSwitch m
+    | TaskSpark m
+    | Reduction m
+    | Initialized m
+
+unwrapExecutionStep :: ExecutionStep Machine Machine -> Machine
+unwrapExecutionStep (Stopped s) = s
+unwrapExecutionStep (TaskSwitch m) = m
+unwrapExecutionStep (TaskSpark m) = m
+unwrapExecutionStep (Reduction m) = m
+unwrapExecutionStep (Initialized m) = m
+
+instance Functor (ExecutionStep s) where
+    fmap f (TaskSwitch m) = TaskSwitch (f m)
+    fmap f (TaskSpark m) = TaskSpark (f m)
+    fmap f (Reduction m) = Reduction (f m)
+    fmap f (Initialized m) = Initialized (f m)
+    fmap _ (Stopped m) = Stopped m
+
+step :: Machine -> ExecutionStep Machine Machine
 step m
-    | isLoneNest m = Right $ loneNest m
-    | isNest m = Right $ nest m
-    | isSparked m = Right $ sparked m -- Must come before unnest check
-    | isUnnest m = Right $ unnest m
-    | isK1 m = Right $ k1 m
-    | isK2 m = Right $ k2 m
-    | isW1 m = Right $ w1 m
-    | isW2 m = Right $ w2 m
-    | isC1 m = Right $ c1 m
-    | isC2 m = Right $ c2 m
-    | isC3 m = Right $ c3 m
-    | isB1 m = Right $ b1 m
-    | isB2 m = Right $ b2 m
-    | isB3 m = Right $ b3 m
-    | isP m = Right $ p m
-    | isG m = Right $ g m
-    | isY m = Right $ y m
-    | isI m = Right $ i m
+    | isLoneNest m = Reduction $ loneNest m
+    | isNest m = Reduction $ nest m
+    | isSparked m = TaskSpark $ sparked m -- Must come before unnest check
+    | isUnnest m = Reduction $ unnest m
+    | isK1 m = Reduction $ k1 m
+    | isK2 m = Reduction $ k2 m
+    | isW1 m = Reduction $ w1 m
+    | isW2 m = Reduction $ w2 m
+    | isC1 m = Reduction $ c1 m
+    | isC2 m = Reduction $ c2 m
+    | isC3 m = Reduction $ c3 m
+    | isB1 m = Reduction $ b1 m
+    | isB2 m = Reduction $ b2 m
+    | isB3 m = Reduction $ b3 m
+    | isP m = Reduction $ p m
+    | isG m = Reduction $ g m
+    | isY m = Reduction $ y m
+    | isI m = Reduction $ i m
     -- I end up in an infinite loop here because the task roots are never removed from the queue
-    | isInvalidUnnest m = Right $ taskSwitch m
-    | not (isRootsEmpty m) = Right $ whnf m
-    | otherwise = Left m
+    | isInvalidUnnest m = TaskSwitch $ taskSwitch m
+    | not (isRootsEmpty m) = TaskSwitch $ whnf m
+    | otherwise = Stopped m
 
 -- Cursor rotation
 rotateCursorsDown :: Machine -> Machine

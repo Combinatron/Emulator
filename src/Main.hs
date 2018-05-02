@@ -6,6 +6,7 @@ import Combinatron.Loader
 import qualified Data.ByteString.Lazy as B
 import Options.Applicative.Simple
 import System.Random
+import Combinatron.Reducer (ExecutionStep(..), unwrapExecutionStep)
 
 data Options = Options
     { seed :: Maybe Int
@@ -51,5 +52,5 @@ main = do
     putStrLn $ "Using random seed: " ++ show rng
     putStrLn $ "Subtract 1 when inputting seed"
     printMachine m
-    m' <- runCmd m
-    printMachine m'
+    m' <- runCmd (Initialized m)
+    printMachine (unwrapExecutionStep m')
