@@ -82,15 +82,18 @@ runDebug m = do
     printExecutionStep m'
     printMachine (unwrapExecutionStep m')
     putStrLn (prettyPrint ((unwrapExecutionStep m')^.statistics))
-    putStrLn "Sparking task..."
-    prompt
-    m'' <- instrument $ runN (fmap (collect . sparkRandom) . fmap collect . cycle) 1 m'
-    printExecutionStep m''
-    printMachine (unwrapExecutionStep m'')
-    putStrLn (prettyPrint ((unwrapExecutionStep m'')^.statistics))
-    if finishedInitialTask (unwrapExecutionStep m'')
-    then return m''
-    else runDebug m''
+    if finishedInitialTask (unwrapExecutionStep m')
+    then return m'
+    else do
+        putStrLn "Sparking task..."
+        prompt
+        m'' <- instrument $ runN (fmap (collect . sparkRandom) . fmap collect . cycle) 1 m'
+        printExecutionStep m''
+        printMachine (unwrapExecutionStep m'')
+        putStrLn (prettyPrint ((unwrapExecutionStep m'')^.statistics))
+        if finishedInitialTask (unwrapExecutionStep m'')
+        then return m''
+        else runDebug m''
 
 prompt = return ()
 
