@@ -35,4 +35,4 @@ finishTask taskId stats = do
     t <- getCurrentTime
     let stats' = stats & taskEndTimes %~ (H.insert taskId t)
         start = H.lookupDefault t taskId (stats'^.taskStartTimes)
-    return $ stats' & taskCompletionTimes %~ (H.insert taskId (diffUTCTime t start))
+    return $ countTaskSwitch $ stats' & taskCompletionTimes %~ (H.insert taskId (diffUTCTime t start))
