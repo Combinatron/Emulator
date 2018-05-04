@@ -92,7 +92,8 @@ runDebug m = do
     then return m''
     else runDebug m''
 
-prompt = getLine
+prompt = return ()
+
 
 megacycle :: MachineExecution -> MachineExecution
 megacycle m = fmap (collect . sparkRandom) . cycle . fmap collect . cycle $ m
