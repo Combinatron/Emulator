@@ -30,10 +30,14 @@ printExecutionStep (Initialized _) = putStrLn "Initialized..."
 
 run :: MachineExecution -> IO MachineExecution
 run m = do
-    m' <- instrument $ runN megacycle 1 m
+    m' <- instrument $ runN nonSparkCycle 1 m
     if finishedInitialTask (unwrapExecutionStep m')
     then return m'
-    else run m'
+    else do
+        m'' <- instrument $ runN sparkCycle 1 m'
+        if finishedInitialTask (unwrapExecutionStep m'')
+        then return m''
+        else run m''
 
 finishedInitialTask :: Machine -> Bool
 finishedInitialTask m = 1 `elem` finishedTaskIds m
