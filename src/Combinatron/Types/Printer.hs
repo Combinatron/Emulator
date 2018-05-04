@@ -62,7 +62,7 @@ instance PrettyPrinter Machine where
         , "- bot: " ++ prettyPrint (machine^.botCursor)
         , "Index:\n\t" ++ prettyPrint (machine^.sentenceIndex)
         , "Task Queue: " ++ prettyPrint (machine^.nodeRoots)
-        , "Combinators: " ++ printCombinators machine
+        -- , "Combinators: " ++ printCombinators machine
         , "Value: " ++ prettyPrint (machine^.value)
         , "Garbage Collector:\n\t" ++ printCollector (machine^.garbageCollector)
         ]
