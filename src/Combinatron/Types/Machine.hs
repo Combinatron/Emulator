@@ -5,6 +5,7 @@ import Control.Lens
 import Combinatron.Types.Memory
 import Combinatron.Types.Evaluator
 import Combinatron.Types.GarbageCollector
+import Combinatron.Types.Statistics as Stats
 import qualified Data.Vector as V
 
 data Machine = Machine
@@ -15,6 +16,7 @@ data Machine = Machine
     , _nodeRoots :: TaskQueue
     , _value :: Sentence
     , _garbageCollector :: Collector
+    , _statistics :: Statistics
     }
     deriving (Show)
 
@@ -56,6 +58,7 @@ initialize index = Machine
     , _nodeRoots = newTask (newPointer 1) emptyTaskQueue
     , _value = emptySentence
     , _garbageCollector = Combinatron.Types.GarbageCollector.initialize
+    , _statistics = Stats.initialize
     }
 
 setSentenceMachine :: Pointer -> Sentence -> Machine -> Machine

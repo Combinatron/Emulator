@@ -12,10 +12,10 @@ module Combinatron.Types (
     n, m, g, p, s, sparked, program, emptyCursor, emptySentence, isN, isM, isP, isG, isSparked, isNotNull, isNull,
     initialize, cursorAt, sentenceAt,
     -- lenses
-    topCursor, midCursor, botCursor, sentenceIndex, value, garbageCollector,
+    topCursor, midCursor, botCursor, sentenceIndex, value, garbageCollector, statistics,
     priWord, secWord, triWord,
     cursorPointer, cursorSentence,
-    nodeRoots, taskQueue, nextTaskId,
+    nodeRoots, taskQueue, nextTaskId, taskId,
     -- Machine Manipulation
     setSentenceMachine
 ) where

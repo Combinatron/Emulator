@@ -10,8 +10,10 @@ import Combinatron.Types.Instructions
 import Combinatron.Types.Machine
 import Combinatron.Types.Evaluator
 import Combinatron.Types.GarbageCollector
+import Combinatron.Types.Statistics
 import Data.List (sortOn)
 import qualified Data.HashMap.Strict as M
+import Data.Time.Clock
 
 -- | Printing facilities
 class PrettyPrinter a where
@@ -80,6 +82,24 @@ instance PrettyPrinter Task where
 
 instance PrettyPrinter (Int, Task) where
     prettyPrint (i, s) = show i ++ " " ++ prettyPrint s
+
+instance PrettyPrinter (Int, UTCTime) where
+    prettyPrint (i, s) = show i ++ " " ++ show s
+
+instance PrettyPrinter (Int, NominalDiffTime) where
+    prettyPrint (i, s) = show i ++ " " ++ show s
+
+instance PrettyPrinter Statistics where
+    prettyPrint stats = concat . intersperse "\n" $
+        [ "Statistics"
+        , "- Cycle count: " ++ show (stats^.cycleCount)
+        , "- Task switch count: " ++ show (stats^.taskSwitchCount)
+        , "- Task start times: "
+        ] ++ map prettyPrint (stats^.taskStartTimes.to M.toList) ++
+        [ "- Task end times: "
+        ] ++ map prettyPrint (stats^.taskEndTimes.to M.toList) ++
+        [ "- Task completion times: "
+        ] ++ map prettyPrint (stats^.taskCompletionTimes.to M.toList)
 
 printCollector :: Collector -> String
 printCollector c = concat . intersperse "\n\t" . map printCollectorEntry $ pairs

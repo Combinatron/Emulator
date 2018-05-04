@@ -1,7 +1,8 @@
 module Main where
 
-import Combinatron (run, runDebug)
-import Combinatron.Types (initialize, printMachine)
+import Combinatron (run, runDebug, instrument)
+import Combinatron.Types (initialize, printMachine, prettyPrint, statistics)
+import Control.Lens ((^.))
 import Combinatron.Loader
 import qualified Data.ByteString.Lazy as B
 import Options.Applicative.Simple
@@ -31,7 +32,7 @@ commandLine =
             addCommand
                 "run"
                 "Run a program and print the final state"
-                (\ o -> (\ y -> return (run y), o))
+                (\ o -> (run, o))
                 parseOptions
             addCommand
                 "debug"
@@ -52,5 +53,8 @@ main = do
     putStrLn $ "Using random seed: " ++ show rng
     putStrLn $ "Subtract 1 when inputting seed"
     printMachine m
-    m' <- runCmd (Initialized m)
+    instrumented <- instrument (Initialized m)
+    putStrLn (prettyPrint ((unwrapExecutionStep instrumented)^.statistics))
+    m' <- runCmd instrumented
     printMachine (unwrapExecutionStep m')
+    putStrLn (prettyPrint ((unwrapExecutionStep m')^.statistics))
