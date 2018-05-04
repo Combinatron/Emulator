@@ -31,8 +31,12 @@ printExecutionStep (Initialized _) = putStrLn "Initialized..."
 run :: MachineExecution -> IO MachineExecution
 run m = do
     m' <- instrument $ runN megacycle 1 m
-    run m'
+    if finishedInitialTask (unwrapExecutionStep m')
+    then return m'
+    else run m'
 
+finishedInitialTask :: Machine -> Bool
+finishedInitialTask m = 1 `elem` finishedTaskIds m
 
 startedTaskIds m = H.keys (m^.statistics.taskStartTimes)
 finishedTaskIds m = H.keys (m^.statistics.taskEndTimes)
@@ -84,7 +88,9 @@ runDebug m = do
     printExecutionStep m''
     printMachine (unwrapExecutionStep m'')
     putStrLn (prettyPrint ((unwrapExecutionStep m'')^.statistics))
-    runDebug m''
+    if finishedInitialTask (unwrapExecutionStep m'')
+    then return m''
+    else runDebug m''
 
 prompt = getLine
 
