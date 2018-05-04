@@ -78,7 +78,7 @@ instrument m =
 runDebug :: MachineExecution -> IO MachineExecution
 runDebug m = do
     prompt
-    m' <- instrument $ runN (fmap collect . cycle) 1 m
+    m' <- instrument $ runN nonSparkCycle 1 m
     printExecutionStep m'
     printMachine (unwrapExecutionStep m')
     putStrLn (prettyPrint ((unwrapExecutionStep m')^.statistics))
@@ -87,7 +87,7 @@ runDebug m = do
     else do
         putStrLn "Sparking task..."
         prompt
-        m'' <- instrument $ runN (fmap (collect . sparkRandom) . fmap collect . cycle) 1 m'
+        m'' <- instrument $ runN sparkCycle 1 m'
         printExecutionStep m''
         printMachine (unwrapExecutionStep m'')
         putStrLn (prettyPrint ((unwrapExecutionStep m'')^.statistics))
@@ -97,9 +97,11 @@ runDebug m = do
 
 prompt = return ()
 
+nonSparkCycle = fmap collect . cycle
+sparkCycle = fmap (collect . sparkRandom . collect) . cycle
 
 megacycle :: MachineExecution -> MachineExecution
-megacycle m = fmap (collect . sparkRandom) . cycle . fmap collect . cycle $ m
+megacycle = sparkCycle . nonSparkCycle
 
 runN ::
     (Num a, Eq a, Enum a) =>
