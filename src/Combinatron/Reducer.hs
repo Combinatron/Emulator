@@ -10,6 +10,7 @@ import Control.Lens (view)
 data ExecutionStep s m
     = Stopped s
     | TaskSwitch m
+    | TaskFinish m
     | TaskSpark m
     | Reduction m
     | Initialized m
@@ -17,12 +18,14 @@ data ExecutionStep s m
 unwrapExecutionStep :: ExecutionStep Machine Machine -> Machine
 unwrapExecutionStep (Stopped s) = s
 unwrapExecutionStep (TaskSwitch m) = m
+unwrapExecutionStep (TaskFinish m) = m
 unwrapExecutionStep (TaskSpark m) = m
 unwrapExecutionStep (Reduction m) = m
 unwrapExecutionStep (Initialized m) = m
 
 instance Functor (ExecutionStep s) where
     fmap f (TaskSwitch m) = TaskSwitch (f m)
+    fmap f (TaskFinish m) = TaskFinish (f m)
     fmap f (TaskSpark m) = TaskSpark (f m)
     fmap f (Reduction m) = Reduction (f m)
     fmap f (Initialized m) = Initialized (f m)
@@ -50,7 +53,7 @@ step m
     | isI m = Reduction $ i m
     -- I end up in an infinite loop here because the task roots are never removed from the queue
     | isInvalidUnnest m = TaskSwitch $ taskSwitch m
-    | not (isRootsEmpty m) = TaskSwitch $ whnf m
+    | not (isRootsEmpty m) = TaskFinish $ whnf m
     | otherwise = Stopped m
 
 -- Cursor rotation
